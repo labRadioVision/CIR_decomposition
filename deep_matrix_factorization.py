@@ -18,6 +18,7 @@ forward passes, matching the "vectorize each factor and optimize" workflow.
 
 from __future__ import annotations
 
+import argparse
 from dataclasses import dataclass
 from typing import List, Literal, Sequence
 
@@ -33,6 +34,17 @@ class FitResult:
     factors: List[torch.Tensor]
     loss_history: List[float]
     reconstruction: torch.Tensor
+
+
+def _import_scipy_io():
+    """Import scipy.io lazily so core module import stays lightweight."""
+    try:
+        from scipy import io as scipy_io
+    except ImportError as exc:
+        raise ImportError(
+            "scipy is required for .mat input/output. Install it with `pip install scipy`."
+        ) from exc
+    return scipy_io
 
 
 class DeepMatrixFactorization:
@@ -195,6 +207,111 @@ class DeepMatrixFactorization:
         return FitResult(factors=mats, loss_history=loss_history, reconstruction=recon)
 
 
+def load_matrix_from_mat(
+    mat_path: str,
+    key: str = "B",
+    device: str = "cpu",
+    dtype: torch.dtype = torch.float64,
+) -> torch.Tensor:
+    """Load target matrix B from a MAT file.
+
+    Args:
+        mat_path: Path to .mat file.
+        key: Variable name containing matrix B in the MAT file.
+    """
+    scipy_io = _import_scipy_io()
+    data = scipy_io.loadmat(mat_path)
+    if key not in data:
+        raise KeyError(f"Variable '{key}' not found in MAT file: {mat_path}")
+
+    B = torch.as_tensor(data[key], dtype=dtype, device=device)
+    if B.ndim != 2:
+        raise ValueError(f"Loaded '{key}' must be a 2D matrix, got shape {tuple(B.shape)}")
+    return B
+
+
+def save_factorization_to_mat(
+    output_path: str,
+    result: FitResult,
+    factor_prefix: str = "H",
+    include_reconstruction: bool = True,
+) -> None:
+    """Save learned factors and optimization metadata to a MAT file."""
+    scipy_io = _import_scipy_io()
+
+    payload = {
+        f"{factor_prefix}_{i+1}": H.detach().cpu().numpy()
+        for i, H in enumerate(result.factors)
+    }
+    payload["loss_history"] = torch.tensor(result.loss_history, dtype=torch.float64).numpy()
+    if include_reconstruction:
+        payload["B_reconstruction"] = result.reconstruction.detach().cpu().numpy()
+
+    scipy_io.savemat(output_path, payload)
+
+
+def factorize_from_mat(
+    input_mat_path: str,
+    output_mat_path: str,
+    dims: Sequence[int],
+    input_key: str = "B",
+    constraint: Constraint = "cholesky",
+    lr: float = 1e-2,
+    max_steps: int = 5000,
+    optimizer: OptimizerName = "adam",
+    tol: float = 1e-10,
+    l2_reg: float = 0.0,
+    seed: int = 0,
+    device: str = "cpu",
+    dtype: torch.dtype = torch.float64,
+    verbose: bool = False,
+) -> FitResult:
+    """Load B from MAT, run deep factorization, and save factors back to MAT."""
+    B = load_matrix_from_mat(input_mat_path, key=input_key, device=device, dtype=dtype)
+
+    model = DeepMatrixFactorization(
+        dims=dims,
+        constraint=constraint,
+        device=device,
+        dtype=dtype,
+        seed=seed,
+    )
+    result = model.fit(
+        B,
+        lr=lr,
+        max_steps=max_steps,
+        optimizer=optimizer,
+        tol=tol,
+        l2_reg=l2_reg,
+        verbose=verbose,
+    )
+    save_factorization_to_mat(output_mat_path, result)
+    return result
+
+
+def _parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Deep matrix factorization from MAT input.")
+    parser.add_argument("--input-mat", type=str, required=False, help="Path to input MAT file")
+    parser.add_argument("--output-mat", type=str, required=False, help="Path to output MAT file")
+    parser.add_argument(
+        "--dims",
+        type=int,
+        nargs="+",
+        required=False,
+        help="Factor chain dimensions, e.g. --dims 20 20 20 20 for 3 square factors",
+    )
+    parser.add_argument("--input-key", type=str, default="B")
+    parser.add_argument("--constraint", choices=["softplus", "cholesky", "projected_psd"], default="cholesky")
+    parser.add_argument("--lr", type=float, default=1e-2)
+    parser.add_argument("--max-steps", type=int, default=5000)
+    parser.add_argument("--optimizer", choices=["adam", "lbfgs"], default="adam")
+    parser.add_argument("--tol", type=float, default=1e-10)
+    parser.add_argument("--l2-reg", type=float, default=0.0)
+    parser.add_argument("--seed", type=int, default=0)
+    parser.add_argument("--verbose", action="store_true")
+    return parser.parse_args()
+
+
 def demo() -> None:
     """Small self-check demo on synthetic PSD factors."""
     torch.manual_seed(1)
@@ -219,4 +336,22 @@ def demo() -> None:
 
 
 if __name__ == "__main__":
-    demo()
+    args = _parse_args()
+    if args.input_mat and args.output_mat and args.dims:
+        out = factorize_from_mat(
+            input_mat_path=args.input_mat,
+            output_mat_path=args.output_mat,
+            dims=args.dims,
+            input_key=args.input_key,
+            constraint=args.constraint,
+            lr=args.lr,
+            max_steps=args.max_steps,
+            optimizer=args.optimizer,
+            tol=args.tol,
+            l2_reg=args.l2_reg,
+            seed=args.seed,
+            verbose=args.verbose,
+        )
+        print(f"Saved {len(out.factors)} factors to {args.output_mat}")
+    else:
+        demo()

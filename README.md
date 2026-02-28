@@ -14,6 +14,9 @@ where each factor is optimized via gradient methods by vectorizing its entries.
   - `DeepMatrixFactorization`: model class.
   - `fit(...)`: MSE-based optimization with Adam or L-BFGS.
   - `FitResult`: output container with learned factors, loss history, and reconstruction.
+  - `load_matrix_from_mat(...)`: loads `B` from `.mat` using `scipy.io.loadmat`.
+  - `save_factorization_to_mat(...)`: exports factors as `.mat` via `scipy.io.savemat`.
+  - `factorize_from_mat(...)`: end-to-end MAT input/output pipeline.
 
 ## Loss function
 
@@ -66,6 +69,44 @@ result = model.fit(B, lr=0.05, max_steps=2000, optimizer="adam")
 
 print(result.loss_history[-1])
 print(result.reconstruction.shape)
+```
+
+## MAT input/output workflow (requested)
+
+You can directly load `B` from a `.mat` file and save all learned factors back to another `.mat` file:
+
+```python
+from deep_matrix_factorization import factorize_from_mat
+
+result = factorize_from_mat(
+    input_mat_path="input_B.mat",
+    output_mat_path="factors_out.mat",
+    dims=[32, 32, 32, 32],
+    input_key="B",         # variable name in input .mat
+    constraint="cholesky", # PSD square factors
+    lr=0.03,
+    max_steps=3000,
+    optimizer="adam",
+)
+```
+
+Saved MAT variables include:
+- `H_1`, `H_2`, ..., `H_L`: learned factors
+- `loss_history`: optimization history
+- `B_reconstruction`: reconstructed matrix product
+
+## Command-line usage
+
+```bash
+python deep_matrix_factorization.py \
+  --input-mat input_B.mat \
+  --output-mat factors_out.mat \
+  --dims 32 32 32 32 \
+  --input-key B \
+  --constraint cholesky \
+  --optimizer adam \
+  --lr 0.03 \
+  --max-steps 3000
 ```
 
 ## Recommendations
