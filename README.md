@@ -33,7 +33,7 @@ Optional L2 regularization is supported.
 
 ## Positivity / PSD handling strategies
 
-Three practical constraint mechanisms are implemented:
+Four practical constraint mechanisms are implemented:
 
 1. **`softplus`** (elementwise-positive factors)
    - Parameterize unconstrained matrix `A_i` and set `H_i = softplus(A_i)`.
@@ -48,6 +48,11 @@ Three practical constraint mechanisms are implemented:
    - Optimize raw matrices directly.
    - After every update, symmetrize and project each square factor to PSD cone using eigenvalue clipping.
    - For rectangular factors under this mode, fallback projection is elementwise non-negativity.
+
+4. **`projected_nonnegative`** (projected gradient)
+   - Optimize raw matrices directly.
+   - After every update, clip every factor entry to be nonnegative.
+   - This is a good fit for sparse rectangular nonnegative targets because factors can contain exact zeros.
 
 ## Rectangular factorizations with custom `L` and `Q`
 
@@ -95,7 +100,7 @@ result = factorize_from_mat(
     num_factors=4,
     inner_dim=12,
     input_key="B",
-    constraint="softplus",
+    constraint="projected_nonnegative",
     lr=0.03,
     max_steps=3000,
     optimizer="adam",
@@ -116,7 +121,7 @@ python deep_matrix_factorization.py \
   --num-factors 4 \
   --inner-dim 12 \
   --input-key B \
-  --constraint softplus \
+  --constraint projected_nonnegative \
   --optimizer adam \
   --lr 0.03 \
   --max-steps 3000
@@ -134,8 +139,9 @@ python deep_matrix_factorization.py \
 ## Recommendations
 
 - If factors must be PSD and square: use **`constraint="cholesky"`**.
-- If you want a straightforward feasibility-enforcing baseline: use **`constraint="projected_psd"`**.
-- For rectangular deep factorization with `M x Q`, `Q x Q`, ..., `Q x N`: use **`constraint="softplus"`**.
+- If you want a straightforward PSD-feasibility baseline for square internal factors: use **`constraint="projected_psd"`**.
+- For sparse rectangular nonnegative targets with many zeros: use **`constraint="projected_nonnegative"`**.
+- For rectangular deep factorization with `M x Q`, `Q x Q`, ..., `Q x N` and strictly positive factors: use **`constraint="softplus"`**.
 
 ## Run demo
 

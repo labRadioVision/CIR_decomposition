@@ -11,6 +11,7 @@ The implementation supports multiple positivity/PSD constraints:
 1) softplus: elementwise positivity (works for rectangular factors)
 2) cholesky: positive semidefinite/definite square factors H = L L^T + eps I
 3) projected_psd: projected-gradient updates with eigenvalue clipping
+4) projected_nonnegative: projected-gradient updates with elementwise clipping
 
 The trainable variables are stored as vectors and reshaped to matrices during
 forward passes, matching the "vectorize each factor and optimize" workflow.
@@ -25,7 +26,7 @@ from typing import List, Literal, Optional, Sequence
 import torch
 import torch.nn.functional as F
 
-Constraint = Literal["softplus", "cholesky", "projected_psd"]
+Constraint = Literal["softplus", "cholesky", "projected_psd", "projected_nonnegative"]
 OptimizerName = Literal["adam", "lbfgs"]
 
 
@@ -179,7 +180,7 @@ class DeepMatrixFactorization:
                 d = torch.diag(F.softplus(torch.diag(L)) + self.jitter)
                 L = torch.tril(L, diagonal=-1) + d
                 H = L @ L.T
-            elif self.constraint == "projected_psd":
+            elif self.constraint in {"projected_psd", "projected_nonnegative"}:
                 H = A
             else:
                 raise ValueError(f"Unknown constraint: {self.constraint}")
@@ -213,6 +214,16 @@ class DeepMatrixFactorization:
                 eigvals = eigvals.clamp_min(0.0)
                 S_psd = (eigvecs * eigvals.unsqueeze(0)) @ eigvecs.T
                 M.copy_(S_psd)
+
+    def _project_nonnegative_(self) -> None:
+        if self.constraint != "projected_nonnegative":
+            return
+
+        with torch.no_grad():
+            for i in range(self.L):
+                n_in, n_out = self.dims[i], self.dims[i + 1]
+                M = self.params[i].view(n_in, n_out)
+                M.copy_(M.clamp_min(0.0))
 
     def fit(
         self,
@@ -260,6 +271,7 @@ class DeepMatrixFactorization:
                 opt.step()
 
             self._project_psd_()
+            self._project_nonnegative_()
 
             loss = float(loss_t.detach().cpu())
             loss_history.append(loss)
@@ -392,7 +404,11 @@ def _parse_args() -> argparse.Namespace:
         help="Shared hidden dimension Q used when inferring factors from --num-factors.",
     )
     parser.add_argument("--input-key", type=str, default="B")
-    parser.add_argument("--constraint", choices=["softplus", "cholesky", "projected_psd"], default="softplus")
+    parser.add_argument(
+        "--constraint",
+        choices=["softplus", "cholesky", "projected_psd", "projected_nonnegative"],
+        default="softplus",
+    )
     parser.add_argument("--lr", type=float, default=1e-2)
     parser.add_argument("--max-steps", type=int, default=5000)
     parser.add_argument("--optimizer", choices=["adam", "lbfgs"], default="adam")
