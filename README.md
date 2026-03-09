@@ -12,6 +12,8 @@ where each factor is optimized via gradient methods by vectorizing its entries.
 
 - `deep_matrix_factorization.py`
   - `DeepMatrixFactorization`: model class.
+  - `build_factor_dims(...)`: helper that builds an `L`-factor chain for a target matrix of shape `M x N` using a shared hidden size `Q`.
+  - `resolve_factor_dims(...)`: validates explicit `dims` or infers them from `(M, N, L, Q)`.
   - `fit(...)`: MSE-based optimization with Adam or L-BFGS.
   - `FitResult`: output container with learned factors, loss history, and reconstruction.
   - `load_matrix_from_mat(...)`: loads `B` from `.mat` using `scipy.io.loadmat`.
@@ -35,45 +37,54 @@ Three practical constraint mechanisms are implemented:
 
 1. **`softplus`** (elementwise-positive factors)
    - Parameterize unconstrained matrix `A_i` and set `H_i = softplus(A_i)`.
-   - Works for rectangular factors.
+   - Works for rectangular factors, including `M x Q` and `Q x N` endpoint factors.
 
 2. **`cholesky`** (strictly PSD/PD square factors)
    - Parameterize unconstrained `A_i` and build lower-triangular `L_i` with positive diagonal.
    - Set `H_i = L_i L_i^T`.
-   - This is usually the most stable PSD parameterization for gradient methods.
+   - This requires every factor to be square, so it is not suitable for rectangular endpoint factors.
 
 3. **`projected_psd`** (projected gradient)
    - Optimize raw matrices directly.
    - After every update, symmetrize and project each square factor to PSD cone using eigenvalue clipping.
    - For rectangular factors under this mode, fallback projection is elementwise non-negativity.
 
-## Why these methods are efficient
+## Rectangular factorizations with custom `L` and `Q`
 
-- **Cholesky parameterization** avoids expensive per-step eigendecompositions and guarantees PSD by construction.
-- **Projected PSD** is simple and robust when you need explicit post-step feasibility.
-- **Vectorized parameters** are packed in 1-D trainable tensors and reshaped only in forward passes, which integrates cleanly with PyTorch optimizers.
+If `B` has shape `M x N`, you can ask for `L` factors with shared hidden size `Q`:
+
+\[
+H_1 \in \mathbb{R}^{M \times Q}, \quad
+H_2,\dots,H_{L-1} \in \mathbb{R}^{Q \times Q}, \quad
+H_L \in \mathbb{R}^{Q \times N}
+\]
+
+Use `build_factor_dims(M, N, L, Q)` to generate the corresponding dimension chain.
 
 ## Quick usage
 
 ```python
 import torch
-from deep_matrix_factorization import DeepMatrixFactorization
+from deep_matrix_factorization import DeepMatrixFactorization, build_factor_dims
 
-n = 8
-dims = [n, n, n, n]  # L=3 factors
-B = torch.randn(n, n, dtype=torch.float64)
-B = B @ B.T + 1e-1 * torch.eye(n, dtype=torch.float64)  # PSD target example
+M, N = 6, 10
+L = 4
+Q = 3
+dims = build_factor_dims(M, N, L, Q)  # [6, 3, 3, 3, 10]
 
-model = DeepMatrixFactorization(dims=dims, constraint="cholesky", seed=0)
+B = torch.rand(M, N, dtype=torch.float64)
+model = DeepMatrixFactorization(dims=dims, constraint="softplus", seed=0)
 result = model.fit(B, lr=0.05, max_steps=2000, optimizer="adam")
 
 print(result.loss_history[-1])
 print(result.reconstruction.shape)
 ```
 
-## MAT input/output workflow (requested)
+## MAT input/output workflow
 
-You can directly load `B` from a `.mat` file and save all learned factors back to another `.mat` file:
+You can directly load `B` from a `.mat` file and either:
+- pass an explicit dimension chain with `dims`, or
+- let the code infer the factor shapes from `B.shape`, `num_factors=L`, and `inner_dim=Q`.
 
 ```python
 from deep_matrix_factorization import factorize_from_mat
@@ -81,9 +92,10 @@ from deep_matrix_factorization import factorize_from_mat
 result = factorize_from_mat(
     input_mat_path="input_B.mat",
     output_mat_path="factors_out.mat",
-    dims=[32, 32, 32, 32],
-    input_key="B",         # variable name in input .mat
-    constraint="cholesky", # PSD square factors
+    num_factors=4,
+    inner_dim=12,
+    input_key="B",
+    constraint="softplus",
     lr=0.03,
     max_steps=3000,
     optimizer="adam",
@@ -101,19 +113,29 @@ Saved MAT variables include:
 python deep_matrix_factorization.py \
   --input-mat input_B.mat \
   --output-mat factors_out.mat \
-  --dims 32 32 32 32 \
+  --num-factors 4 \
+  --inner-dim 12 \
   --input-key B \
-  --constraint cholesky \
+  --constraint softplus \
   --optimizer adam \
   --lr 0.03 \
   --max-steps 3000
+```
+
+You can still provide an explicit chain if you prefer:
+
+```bash
+python deep_matrix_factorization.py \
+  --input-mat input_B.mat \
+  --output-mat factors_out.mat \
+  --dims 20 12 12 30
 ```
 
 ## Recommendations
 
 - If factors must be PSD and square: use **`constraint="cholesky"`**.
 - If you want a straightforward feasibility-enforcing baseline: use **`constraint="projected_psd"`**.
-- For rectangular deep factorization with positivity only: use **`constraint="softplus"`**.
+- For rectangular deep factorization with `M x Q`, `Q x Q`, ..., `Q x N`: use **`constraint="softplus"`**.
 
 ## Run demo
 
@@ -121,4 +143,4 @@ python deep_matrix_factorization.py \
 python deep_matrix_factorization.py
 ```
 
-This creates synthetic PSD factors, composes `B`, and recovers a low-error deep factorization.
+This creates a synthetic rectangular factorization, composes `B`, and recovers a low-error deep factorization.
