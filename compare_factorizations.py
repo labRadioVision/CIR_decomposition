@@ -9,19 +9,6 @@ import torch
 from deep_matrix_factorization import factorize_from_mat
 
 
-def sorted_real_eigs(matrix: np.ndarray) -> list[float]:
-    eigvals = np.linalg.eigvals(matrix)
-    eigvals = np.real_if_close(eigvals, tol=1_000)
-    eigvals = np.asarray(eigvals, dtype=np.float64)
-    return sorted(eigvals.tolist(), reverse=True)
-
-
-def sorted_gram_eigs(matrix: np.ndarray, left_gram: bool) -> list[float]:
-    gram = matrix @ matrix.T if left_gram else matrix.T @ matrix
-    eigvals = np.linalg.eigvalsh(0.5 * (gram + gram.T))
-    return sorted(np.asarray(eigvals, dtype=np.float64).tolist(), reverse=True)
-
-
 def sorted_singular_values(matrix: np.ndarray) -> list[float]:
     singular_values = np.linalg.svd(matrix, compute_uv=False)
     return sorted(np.asarray(singular_values, dtype=np.float64).tolist(), reverse=True)
@@ -49,9 +36,6 @@ def factor_metrics(result_path: Path, source_name: str, source_matrix: np.ndarra
             "B_reconstruction": float(np.linalg.norm(B_hat)),
         },
         "spectra": {
-            "G_eigenvalues": sorted_real_eigs(G),
-            "UtU_eigenvalues": sorted_gram_eigs(U, left_gram=False),
-            "VVt_eigenvalues": sorted_gram_eigs(V, left_gram=True),
             "U_singular_values": sorted_singular_values(U),
             "G_singular_values": sorted_singular_values(G),
             "V_singular_values": sorted_singular_values(V),
@@ -136,18 +120,6 @@ def main() -> None:
             "V": float(np.linalg.norm(Va - Vb)),
         },
         "spectral_differences": {
-            "G_eigenvalue_diff": list_diff(
-                metrics_a["spectra"]["G_eigenvalues"],
-                metrics_b["spectra"]["G_eigenvalues"],
-            ),
-            "UtU_eigenvalue_diff": list_diff(
-                metrics_a["spectra"]["UtU_eigenvalues"],
-                metrics_b["spectra"]["UtU_eigenvalues"],
-            ),
-            "VVt_eigenvalue_diff": list_diff(
-                metrics_a["spectra"]["VVt_eigenvalues"],
-                metrics_b["spectra"]["VVt_eigenvalues"],
-            ),
             "U_singular_value_diff": list_diff(
                 metrics_a["spectra"]["U_singular_values"],
                 metrics_b["spectra"]["U_singular_values"],
@@ -190,12 +162,6 @@ def main() -> None:
             "U_diff_fro": comparison["raw_factor_differences_fro"]["U"],
             "G_diff_fro": comparison["raw_factor_differences_fro"]["G"],
             "V_diff_fro": comparison["raw_factor_differences_fro"]["V"],
-            "G_eigenvalues_input_B": np.asarray(metrics_a["spectra"]["G_eigenvalues"], dtype=np.float64),
-            "G_eigenvalues_input_B_v2": np.asarray(metrics_b["spectra"]["G_eigenvalues"], dtype=np.float64),
-            "UtU_eigenvalues_input_B": np.asarray(metrics_a["spectra"]["UtU_eigenvalues"], dtype=np.float64),
-            "UtU_eigenvalues_input_B_v2": np.asarray(metrics_b["spectra"]["UtU_eigenvalues"], dtype=np.float64),
-            "VVt_eigenvalues_input_B": np.asarray(metrics_a["spectra"]["VVt_eigenvalues"], dtype=np.float64),
-            "VVt_eigenvalues_input_B_v2": np.asarray(metrics_b["spectra"]["VVt_eigenvalues"], dtype=np.float64),
             "U_singular_values_input_B": np.asarray(metrics_a["spectra"]["U_singular_values"], dtype=np.float64),
             "U_singular_values_input_B_v2": np.asarray(metrics_b["spectra"]["U_singular_values"], dtype=np.float64),
             "G_singular_values_input_B": np.asarray(metrics_a["spectra"]["G_singular_values"], dtype=np.float64),

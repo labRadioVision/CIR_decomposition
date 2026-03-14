@@ -9,19 +9,6 @@ import torch
 from deep_matrix_factorization import build_model_for_matrix
 
 
-def sorted_real_eigs(matrix: np.ndarray) -> list[float]:
-    eigvals = np.linalg.eigvals(matrix)
-    eigvals = np.real_if_close(eigvals, tol=1_000)
-    eigvals = np.asarray(eigvals, dtype=np.float64)
-    return sorted(eigvals.tolist(), reverse=True)
-
-
-def sorted_gram_eigs(matrix: np.ndarray, left_gram: bool) -> list[float]:
-    gram = matrix @ matrix.T if left_gram else matrix.T @ matrix
-    eigvals = np.linalg.eigvalsh(0.5 * (gram + gram.T))
-    return sorted(np.asarray(eigvals, dtype=np.float64).tolist(), reverse=True)
-
-
 def sorted_singular_values(matrix: np.ndarray) -> list[float]:
     singular_values = np.linalg.svd(matrix, compute_uv=False)
     return sorted(np.asarray(singular_values, dtype=np.float64).tolist(), reverse=True)
@@ -59,9 +46,6 @@ def factorize_window(B_win: np.ndarray, rank: int) -> dict:
         "B_hat": B_hat,
         "rel_err": rel_err,
         "spectra": {
-            "G_eigenvalues": sorted_real_eigs(G),
-            "UtU_eigenvalues": sorted_gram_eigs(U, left_gram=False),
-            "VVt_eigenvalues": sorted_gram_eigs(V, left_gram=True),
             "U_singular_values": sorted_singular_values(U),
             "G_singular_values": sorted_singular_values(G),
             "V_singular_values": sorted_singular_values(V),
@@ -121,15 +105,6 @@ def main() -> None:
                 "V": float(np.linalg.norm(fact_a["V"] - fact_b["V"])),
             },
             "spectral_distance_l2": {
-                "G_eigenvalues": vector_l2_diff(
-                    fact_a["spectra"]["G_eigenvalues"], fact_b["spectra"]["G_eigenvalues"]
-                ),
-                "UtU_eigenvalues": vector_l2_diff(
-                    fact_a["spectra"]["UtU_eigenvalues"], fact_b["spectra"]["UtU_eigenvalues"]
-                ),
-                "VVt_eigenvalues": vector_l2_diff(
-                    fact_a["spectra"]["VVt_eigenvalues"], fact_b["spectra"]["VVt_eigenvalues"]
-                ),
                 "U_singular_values": vector_l2_diff(
                     fact_a["spectra"]["U_singular_values"], fact_b["spectra"]["U_singular_values"]
                 ),
@@ -142,17 +117,11 @@ def main() -> None:
             },
             "leading_values": {
                 "input_B": {
-                    "G_eig1": fact_a["spectra"]["G_eigenvalues"][0],
-                    "UtU_eig1": fact_a["spectra"]["UtU_eigenvalues"][0],
-                    "VVt_eig1": fact_a["spectra"]["VVt_eigenvalues"][0],
                     "U_sv1": fact_a["spectra"]["U_singular_values"][0],
                     "G_sv1": fact_a["spectra"]["G_singular_values"][0],
                     "V_sv1": fact_a["spectra"]["V_singular_values"][0],
                 },
                 "input_B_v2": {
-                    "G_eig1": fact_b["spectra"]["G_eigenvalues"][0],
-                    "UtU_eig1": fact_b["spectra"]["UtU_eigenvalues"][0],
-                    "VVt_eig1": fact_b["spectra"]["VVt_eigenvalues"][0],
                     "U_sv1": fact_b["spectra"]["U_singular_values"][0],
                     "G_sv1": fact_b["spectra"]["G_singular_values"][0],
                     "V_sv1": fact_b["spectra"]["V_singular_values"][0],
@@ -165,23 +134,15 @@ def main() -> None:
             + comparison["spectral_distance_l2"]["G_singular_values"]
             + comparison["spectral_distance_l2"]["V_singular_values"]
         )
-        comparison["combined_eigen_distance"] = (
-            comparison["spectral_distance_l2"]["G_eigenvalues"]
-            + comparison["spectral_distance_l2"]["UtU_eigenvalues"]
-            + comparison["spectral_distance_l2"]["VVt_eigenvalues"]
-        )
 
         window_results.append(comparison)
         print(
             f"window {idx + 1:02d} cols {start + 1}-{end}: "
-            f"combined_sv_dist={comparison['combined_singular_distance']:.6f}, "
-            f"combined_eig_dist={comparison['combined_eigen_distance']:.6f}"
+            f"combined_sv_dist={comparison['combined_singular_distance']:.6f}"
         )
 
     strongest_by_sv = max(window_results, key=lambda x: x["combined_singular_distance"])
     weakest_by_sv = min(window_results, key=lambda x: x["combined_singular_distance"])
-    strongest_by_eig = max(window_results, key=lambda x: x["combined_eigen_distance"])
-    weakest_by_eig = min(window_results, key=lambda x: x["combined_eigen_distance"])
 
     summary = {
         "rank": args.rank,
@@ -191,8 +152,6 @@ def main() -> None:
         "num_windows": num_windows,
         "strongest_window_by_combined_singular_distance": strongest_by_sv,
         "weakest_window_by_combined_singular_distance": weakest_by_sv,
-        "strongest_window_by_combined_eigen_distance": strongest_by_eig,
-        "weakest_window_by_combined_eigen_distance": weakest_by_eig,
         "window_results": window_results,
     }
 
@@ -208,9 +167,6 @@ def main() -> None:
             "max_cols": args.max_cols,
             "combined_singular_distance": np.asarray(
                 [item["combined_singular_distance"] for item in window_results], dtype=np.float64
-            ),
-            "combined_eigen_distance": np.asarray(
-                [item["combined_eigen_distance"] for item in window_results], dtype=np.float64
             ),
             "raw_input_relative_difference": np.asarray(
                 [item["raw_input_relative_difference"] for item in window_results], dtype=np.float64
