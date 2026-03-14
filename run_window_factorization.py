@@ -36,7 +36,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--window-size", type=int, default=300, help="Window width along columns.")
     parser.add_argument("--step", type=int, default=300, help="Step between consecutive windows.")
     parser.add_argument("--max-cols", type=int, default=2100, help="Use only the first max-cols columns.")
-    parser.add_argument("--rank", type=int, default=2, help="UGV rank.")
+    parser.add_argument("--rank", type=int, default=7, help="UGV rank. Defaults to 7.")
     parser.add_argument(
         "--output-prefix",
         type=str,
@@ -46,7 +46,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--aggregate-name",
         type=str,
-        default="factors_out_windows_ugv_rank2.mat",
+        default="factors_out_windows_ugv_rank7.mat",
         help="Filename for the aggregate MAT output.",
     )
     parser.add_argument(

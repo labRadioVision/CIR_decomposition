@@ -113,7 +113,7 @@ result = model.fit(B, lr=0.05, max_steps=2000, optimizer="adam")
 import torch
 from deep_matrix_factorization import LowRankMatrixFactorization
 
-M, N, r = 20, 30, 2
+M, N, r = 20, 30, 7
 B = torch.rand(M, N, dtype=torch.float64)
 
 model = LowRankMatrixFactorization(
@@ -133,7 +133,7 @@ result = model.fit(B, lr=0.05, max_steps=2000, optimizer="adam")
 import torch
 from deep_matrix_factorization import LowRankMatrixFactorization
 
-M, N, r = 20, 30, 2
+M, N, r = 20, 30, 7
 B = torch.rand(M, N, dtype=torch.float64)
 
 model = LowRankMatrixFactorization(
@@ -156,7 +156,7 @@ result = factorize_from_mat(
     input_mat_path="input_B.mat",
     output_mat_path="factors_out.mat",
     model="ugv",
-    rank=2,
+    rank=7,
     input_key="B",
     constraint="projected_nonnegative",
     lr=0.03,
@@ -180,7 +180,7 @@ python deep_matrix_factorization.py \
   --input-mat input_B.mat \
   --output-mat factors_out.mat \
   --model ugv \
-  --rank 2 \
+  --rank 7 \
   --input-key B \
   --constraint projected_nonnegative \
   --optimizer adam \
@@ -201,8 +201,8 @@ python deep_matrix_factorization.py \
 
 ## Recommendations
 
-- For sparse rectangular matrices with very similar rows: start with `model="uv"` and a very small `rank`.
-- If you want a little extra flexibility while staying low-rank: use `model="ugv"`.
+- For sparse rectangular matrices with very similar rows: start with `model="uv"` and a small `rank`, with `7` as the current default.
+- If you want a little extra flexibility while staying low-rank: use `model="ugv"`, also with default `rank=7`.
 - Use the full `chain` model only when the shallow low-rank models are clearly too restrictive.
 - For sparse nonnegative targets: prefer `constraint="projected_nonnegative"`.
 

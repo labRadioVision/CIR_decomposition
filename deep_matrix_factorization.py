@@ -410,7 +410,7 @@ def build_model_for_matrix(
     dims: Optional[Sequence[int]] = None,
     num_factors: Optional[int] = None,
     inner_dim: Optional[int] = None,
-    rank: Optional[int] = None,
+    rank: Optional[int] = 7,
     constraint: Constraint = "softplus",
     device: str = "cpu",
     dtype: torch.dtype = torch.float64,
@@ -452,7 +452,7 @@ def factorize_from_mat(
     dims: Optional[Sequence[int]] = None,
     num_factors: Optional[int] = None,
     inner_dim: Optional[int] = None,
-    rank: Optional[int] = None,
+    rank: Optional[int] = 7,
     model: ModelName = "chain",
     input_key: str = "B",
     constraint: Constraint = "softplus",
@@ -525,8 +525,9 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--rank",
         type=int,
+        default=7,
         required=False,
-        help="Low-rank dimension r for model='uv' or model='ugv'.",
+        help="Low-rank dimension r for model='uv' or model='ugv'. Defaults to 7.",
     )
     parser.add_argument("--input-key", type=str, default="B")
     parser.add_argument(
@@ -592,9 +593,6 @@ if __name__ == "__main__":
             raise SystemExit("Both --input-mat and --output-mat are required for MAT I/O.")
         if args.model == "chain" and args.dims is None and args.num_factors is None:
             raise SystemExit("For model='chain', provide either --dims or --num-factors.")
-        if args.model in {"uv", "ugv"} and args.rank is None:
-            raise SystemExit("For model='uv' or model='ugv', provide --rank.")
-
         out = factorize_from_mat(
             input_mat_path=args.input_mat,
             output_mat_path=args.output_mat,
