@@ -1,33 +1,28 @@
-"""Deep matrix factorization with gradient-based optimization.
+"""Matrix factorization with deep-chain and lightweight low-rank models.
 
-Given a target matrix B and a chain of factor dimensions
-(n0, n1, ..., nL), this module learns factors H1..HL such that
+This module supports three factorization families for a target matrix ``B``:
 
-    B \approx H1 @ H2 @ ... @ HL
+1) ``chain``:     B ~= H1 @ H2 @ ... @ HL
+2) ``uv``:        B ~= U @ V
+3) ``ugv``:       B ~= U @ G @ V
 
-using mean-squared-error loss and first-order gradient methods.
-
-The implementation supports multiple positivity/PSD constraints:
-1) softplus: elementwise positivity (works for rectangular factors)
-2) cholesky: positive semidefinite/definite square factors H = L L^T + eps I
-3) projected_psd: projected-gradient updates with eigenvalue clipping
-4) projected_nonnegative: projected-gradient updates with elementwise clipping
-
-The trainable variables are stored as vectors and reshaped to matrices during
-forward passes, matching the "vectorize each factor and optimize" workflow.
+The low-rank ``uv`` and ``ugv`` variants are useful when rows are very similar
+and only a few columns carry signal, since such matrices are typically very
+low-rank and do not need a long factor chain.
 """
 
 from __future__ import annotations
 
 import argparse
 from dataclasses import dataclass
-from typing import List, Literal, Optional, Sequence
+from typing import List, Literal, Optional, Sequence, Tuple
 
 import torch
 import torch.nn.functional as F
 
 Constraint = Literal["softplus", "cholesky", "projected_psd", "projected_nonnegative"]
 OptimizerName = Literal["adam", "lbfgs"]
+ModelName = Literal["chain", "uv", "ugv"]
 
 
 @dataclass
@@ -35,6 +30,7 @@ class FitResult:
     factors: List[torch.Tensor]
     loss_history: List[float]
     reconstruction: torch.Tensor
+
 
 def _import_scipy_io():
     """Import scipy.io lazily so core module import stays lightweight."""
@@ -46,13 +42,14 @@ def _import_scipy_io():
         ) from exc
     return scipy_io
 
+
 def build_factor_dims(
     rows: int,
     cols: int,
     num_factors: int,
     inner_dim: Optional[int] = None,
 ) -> List[int]:
-    """Build a factor chain for a target matrix in R^(rows x cols)."""
+    """Build a chain-model dimension list for a target matrix in R^(rows x cols)."""
     if rows <= 0 or cols <= 0:
         raise ValueError(f"rows and cols must be positive, got {(rows, cols)}.")
     if num_factors < 1:
@@ -67,13 +64,26 @@ def build_factor_dims(
     return [rows] + [inner_dim] * (num_factors - 1) + [cols]
 
 
+def build_low_rank_shapes(rows: int, cols: int, rank: int, model: ModelName) -> List[Tuple[int, int]]:
+    """Build factor shapes for lightweight low-rank models."""
+    if rows <= 0 or cols <= 0:
+        raise ValueError(f"rows and cols must be positive, got {(rows, cols)}.")
+    if rank <= 0:
+        raise ValueError(f"rank must be positive, got {rank}.")
+    if model == "uv":
+        return [(rows, rank), (rank, cols)]
+    if model == "ugv":
+        return [(rows, rank), (rank, rank), (rank, cols)]
+    raise ValueError(f"Low-rank shapes are only defined for model='uv' or 'ugv', got {model}.")
+
+
 def resolve_factor_dims(
     target_shape: Sequence[int],
     dims: Optional[Sequence[int]] = None,
     num_factors: Optional[int] = None,
     inner_dim: Optional[int] = None,
 ) -> List[int]:
-    """Resolve a valid factor-dimension chain for a 2D target matrix."""
+    """Resolve a valid chain-model dimension list for a 2D target matrix."""
     if len(target_shape) != 2:
         raise ValueError(f"target_shape must have length 2, got {tuple(target_shape)}.")
 
@@ -101,53 +111,37 @@ def resolve_factor_dims(
     return build_factor_dims(rows=rows, cols=cols, num_factors=num_factors, inner_dim=inner_dim)
 
 
-class DeepMatrixFactorization:
+class _FactorizationBase:
     def __init__(
         self,
-        dims: Sequence[int],
+        factor_shapes: Sequence[Tuple[int, int]],
         constraint: Constraint = "softplus",
         device: str = "cpu",
         dtype: torch.dtype = torch.float64,
         jitter: float = 1e-6,
         seed: int = 0,
     ) -> None:
-        if len(dims) < 2:
-            raise ValueError("dims must contain at least [input_dim, output_dim].")
-        if any(d <= 0 for d in dims):
-            raise ValueError(f"All dims must be positive, got {list(dims)}.")
+        if len(factor_shapes) < 1:
+            raise ValueError("factor_shapes must contain at least one factor.")
 
-        self.dims = [int(d) for d in dims]
-        self.L = len(dims) - 1
+        self.factor_shapes = [(int(n_in), int(n_out)) for n_in, n_out in factor_shapes]
+        if any(n_in <= 0 or n_out <= 0 for n_in, n_out in self.factor_shapes):
+            raise ValueError(f"All factor dimensions must be positive, got {self.factor_shapes}.")
+
+        self.L = len(self.factor_shapes)
         self.constraint = constraint
         self.device = device
         self.dtype = dtype
         self.jitter = jitter
+        self.target_shape = (self.factor_shapes[0][0], self.factor_shapes[-1][1])
 
         torch.manual_seed(seed)
         self._init_parameters()
 
-    @classmethod
-    def from_target_shape(
-        cls,
-        target_shape: Sequence[int],
-        num_factors: int,
-        inner_dim: Optional[int] = None,
-        **kwargs,
-    ) -> "DeepMatrixFactorization":
-        """Construct a model from target shape and shared hidden size."""
-        dims = resolve_factor_dims(
-            target_shape=target_shape,
-            num_factors=num_factors,
-            inner_dim=inner_dim,
-        )
-        return cls(dims=dims, **kwargs)
-
     def _init_parameters(self) -> None:
         self.params = torch.nn.ParameterList()
 
-        for i in range(self.L):
-            n_in, n_out = self.dims[i], self.dims[i + 1]
-
+        for i, (n_in, n_out) in enumerate(self.factor_shapes):
             if self.constraint == "cholesky":
                 if n_in != n_out:
                     raise ValueError(
@@ -158,13 +152,17 @@ class DeepMatrixFactorization:
             else:
                 size = n_in * n_out
 
-            p = torch.nn.Parameter(
-                0.01 * torch.randn(size, dtype=self.dtype, device=self.device)
+            if self.constraint == "projected_nonnegative":
+                init = 0.05 * torch.rand(size, dtype=self.dtype, device=self.device) + 1e-3
+            else:
+                init = 0.01 * torch.randn(size, dtype=self.dtype, device=self.device)
+
+            self.params.append(
+                torch.nn.Parameter(init)
             )
-            self.params.append(p)
 
     def _raw_factor(self, idx: int) -> torch.Tensor:
-        n_in, n_out = self.dims[idx], self.dims[idx + 1]
+        n_in, n_out = self.factor_shapes[idx]
         return self.params[idx].view(n_in, n_out)
 
     def factors(self) -> List[torch.Tensor]:
@@ -175,7 +173,6 @@ class DeepMatrixFactorization:
             if self.constraint == "softplus":
                 H = F.softplus(A)
             elif self.constraint == "cholesky":
-                # Build lower-triangular matrix with strictly positive diagonal.
                 L = torch.tril(A)
                 d = torch.diag(F.softplus(torch.diag(L)) + self.jitter)
                 L = torch.tril(L, diagonal=-1) + d
@@ -200,15 +197,12 @@ class DeepMatrixFactorization:
             return
 
         with torch.no_grad():
-            for i in range(self.L):
-                n_in, n_out = self.dims[i], self.dims[i + 1]
+            for i, (n_in, n_out) in enumerate(self.factor_shapes):
+                M = self.params[i].view(n_in, n_out)
                 if n_in != n_out:
-                    # For rectangular factors, fallback to elementwise positivity projection.
-                    M = self.params[i].view(n_in, n_out)
                     M.copy_(M.clamp_min(0.0))
                     continue
 
-                M = self.params[i].view(n_in, n_out)
                 S = 0.5 * (M + M.T)
                 eigvals, eigvecs = torch.linalg.eigh(S)
                 eigvals = eigvals.clamp_min(0.0)
@@ -220,8 +214,7 @@ class DeepMatrixFactorization:
             return
 
         with torch.no_grad():
-            for i in range(self.L):
-                n_in, n_out = self.dims[i], self.dims[i + 1]
+            for i, (n_in, n_out) in enumerate(self.factor_shapes):
                 M = self.params[i].view(n_in, n_out)
                 M.copy_(M.clamp_min(0.0))
 
@@ -236,10 +229,10 @@ class DeepMatrixFactorization:
         verbose: bool = False,
     ) -> FitResult:
         B = B.to(device=self.device, dtype=self.dtype)
-        if B.shape != (self.dims[0], self.dims[-1]):
+        if tuple(B.shape) != self.target_shape:
             raise ValueError(
-                f"B shape {tuple(B.shape)} incompatible with dims chain "
-                f"{self.dims[0]} -> {self.dims[-1]}"
+                f"B shape {tuple(B.shape)} incompatible with factorization target "
+                f"{self.target_shape}."
             )
 
         if optimizer == "adam":
@@ -290,18 +283,96 @@ class DeepMatrixFactorization:
         return FitResult(factors=mats, loss_history=loss_history, reconstruction=recon)
 
 
+class DeepMatrixFactorization(_FactorizationBase):
+    def __init__(
+        self,
+        dims: Sequence[int],
+        constraint: Constraint = "softplus",
+        device: str = "cpu",
+        dtype: torch.dtype = torch.float64,
+        jitter: float = 1e-6,
+        seed: int = 0,
+    ) -> None:
+        if len(dims) < 2:
+            raise ValueError("dims must contain at least [input_dim, output_dim].")
+        if any(d <= 0 for d in dims):
+            raise ValueError(f"All dims must be positive, got {list(dims)}.")
+
+        self.dims = [int(d) for d in dims]
+        factor_shapes = list(zip(self.dims[:-1], self.dims[1:]))
+        super().__init__(
+            factor_shapes=factor_shapes,
+            constraint=constraint,
+            device=device,
+            dtype=dtype,
+            jitter=jitter,
+            seed=seed,
+        )
+
+    @classmethod
+    def from_target_shape(
+        cls,
+        target_shape: Sequence[int],
+        num_factors: int,
+        inner_dim: Optional[int] = None,
+        **kwargs,
+    ) -> "DeepMatrixFactorization":
+        dims = resolve_factor_dims(
+            target_shape=target_shape,
+            num_factors=num_factors,
+            inner_dim=inner_dim,
+        )
+        return cls(dims=dims, **kwargs)
+
+
+class LowRankMatrixFactorization(_FactorizationBase):
+    def __init__(
+        self,
+        rows: int,
+        cols: int,
+        rank: int,
+        model: Literal["uv", "ugv"] = "uv",
+        constraint: Constraint = "projected_nonnegative",
+        device: str = "cpu",
+        dtype: torch.dtype = torch.float64,
+        jitter: float = 1e-6,
+        seed: int = 0,
+    ) -> None:
+        self.rows = int(rows)
+        self.cols = int(cols)
+        self.rank = int(rank)
+        self.model = model
+        factor_shapes = build_low_rank_shapes(self.rows, self.cols, self.rank, model)
+        super().__init__(
+            factor_shapes=factor_shapes,
+            constraint=constraint,
+            device=device,
+            dtype=dtype,
+            jitter=jitter,
+            seed=seed,
+        )
+
+    @classmethod
+    def from_target_shape(
+        cls,
+        target_shape: Sequence[int],
+        rank: int,
+        model: Literal["uv", "ugv"] = "uv",
+        **kwargs,
+    ) -> "LowRankMatrixFactorization":
+        if len(target_shape) != 2:
+            raise ValueError(f"target_shape must have length 2, got {tuple(target_shape)}.")
+        rows, cols = int(target_shape[0]), int(target_shape[1])
+        return cls(rows=rows, cols=cols, rank=rank, model=model, **kwargs)
+
+
 def load_matrix_from_mat(
     mat_path: str,
     key: str = "B",
     device: str = "cpu",
     dtype: torch.dtype = torch.float64,
 ) -> torch.Tensor:
-    """Load target matrix B from a MAT file.
-
-    Args:
-        mat_path: Path to .mat file.
-        key: Variable name containing matrix B in the MAT file.
-    """
+    """Load target matrix B from a MAT file."""
     scipy_io = _import_scipy_io()
     data = scipy_io.loadmat(mat_path)
     if key not in data:
@@ -333,12 +404,56 @@ def save_factorization_to_mat(
     scipy_io.savemat(output_path, payload)
 
 
+def build_model_for_matrix(
+    B_shape: Sequence[int],
+    model: ModelName = "chain",
+    dims: Optional[Sequence[int]] = None,
+    num_factors: Optional[int] = None,
+    inner_dim: Optional[int] = None,
+    rank: Optional[int] = None,
+    constraint: Constraint = "softplus",
+    device: str = "cpu",
+    dtype: torch.dtype = torch.float64,
+    seed: int = 0,
+) -> _FactorizationBase:
+    """Build a factorization model for a target matrix shape."""
+    if model == "chain":
+        resolved_dims = resolve_factor_dims(
+            target_shape=B_shape,
+            dims=dims,
+            num_factors=num_factors,
+            inner_dim=inner_dim,
+        )
+        return DeepMatrixFactorization(
+            dims=resolved_dims,
+            constraint=constraint,
+            device=device,
+            dtype=dtype,
+            seed=seed,
+        )
+
+    if rank is None:
+        raise ValueError("rank is required when model is 'uv' or 'ugv'.")
+
+    return LowRankMatrixFactorization.from_target_shape(
+        target_shape=B_shape,
+        rank=rank,
+        model=model,
+        constraint=constraint,
+        device=device,
+        dtype=dtype,
+        seed=seed,
+    )
+
+
 def factorize_from_mat(
     input_mat_path: str,
     output_mat_path: str,
     dims: Optional[Sequence[int]] = None,
     num_factors: Optional[int] = None,
     inner_dim: Optional[int] = None,
+    rank: Optional[int] = None,
+    model: ModelName = "chain",
     input_key: str = "B",
     constraint: Constraint = "softplus",
     lr: float = 1e-2,
@@ -351,23 +466,21 @@ def factorize_from_mat(
     dtype: torch.dtype = torch.float64,
     verbose: bool = False,
 ) -> FitResult:
-    """Load B from MAT, run deep factorization, and save factors back to MAT."""
+    """Load B from MAT, run factorization, and save factors back to MAT."""
     B = load_matrix_from_mat(input_mat_path, key=input_key, device=device, dtype=dtype)
-    resolved_dims = resolve_factor_dims(
-        target_shape=B.shape,
+    factor_model = build_model_for_matrix(
+        B_shape=B.shape,
+        model=model,
         dims=dims,
         num_factors=num_factors,
         inner_dim=inner_dim,
-    )
-
-    model = DeepMatrixFactorization(
-        dims=resolved_dims,
+        rank=rank,
         constraint=constraint,
         device=device,
         dtype=dtype,
         seed=seed,
     )
-    result = model.fit(
+    result = factor_model.fit(
         B,
         lr=lr,
         max_steps=max_steps,
@@ -381,33 +494,45 @@ def factorize_from_mat(
 
 
 def _parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Deep matrix factorization from MAT input.")
+    parser = argparse.ArgumentParser(description="Matrix factorization from MAT input.")
     parser.add_argument("--input-mat", type=str, required=False, help="Path to input MAT file")
     parser.add_argument("--output-mat", type=str, required=False, help="Path to output MAT file")
+    parser.add_argument(
+        "--model",
+        choices=["chain", "uv", "ugv"],
+        default="chain",
+        help="Factorization family: long chain, shallow UV, or deep-flavored UGV.",
+    )
     parser.add_argument(
         "--dims",
         type=int,
         nargs="+",
         required=False,
-        help="Factor chain dimensions, e.g. --dims 20 10 10 30 for a 20x30 target with 3 factors",
+        help="Chain-model dimensions, e.g. --dims 20 10 10 30.",
     )
     parser.add_argument(
         "--num-factors",
         type=int,
         required=False,
-        help="Number of factors L. With --inner-dim Q and target B in R^(M x N), builds MxQ, QxQ, ..., QxN.",
+        help="Number of factors L for the chain model.",
     )
     parser.add_argument(
         "--inner-dim",
         type=int,
         required=False,
-        help="Shared hidden dimension Q used when inferring factors from --num-factors.",
+        help="Shared hidden dimension Q for the chain model.",
+    )
+    parser.add_argument(
+        "--rank",
+        type=int,
+        required=False,
+        help="Low-rank dimension r for model='uv' or model='ugv'.",
     )
     parser.add_argument("--input-key", type=str, default="B")
     parser.add_argument(
         "--constraint",
         choices=["softplus", "cholesky", "projected_psd", "projected_nonnegative"],
-        default="softplus",
+        default="projected_nonnegative",
     )
     parser.add_argument("--lr", type=float, default=1e-2)
     parser.add_argument("--max-steps", type=int, default=5000)
@@ -420,26 +545,31 @@ def _parse_args() -> argparse.Namespace:
 
 
 def demo() -> None:
-    """Small self-check demo on a rectangular synthetic factorization."""
+    """Small self-check demo on a sparse, very-low-rank rectangular matrix."""
     torch.manual_seed(1)
 
-    m, n = 5, 8
-    num_factors = 4
-    q = 3
-    dims = build_factor_dims(rows=m, cols=n, num_factors=num_factors, inner_dim=q)
+    m, n, r = 10, 18, 2
+    U_true = torch.rand(m, r, dtype=torch.float64) + 0.1
+    G_true = torch.tensor([[1.2, 0.1], [0.1, 0.8]], dtype=torch.float64)
+    V_true = torch.zeros(r, n, dtype=torch.float64)
+    active_cols = torch.tensor([2, 3, 10, 11, 15])
+    V_true[:, active_cols] = torch.rand(r, active_cols.numel(), dtype=torch.float64) + 0.1
+    B = U_true @ G_true @ V_true
+    B = B + 0.01 * torch.rand_like(B)
 
-    true_factors = [torch.rand(m, q, dtype=torch.float64) + 0.1]
-    for _ in range(num_factors - 2):
-        true_factors.append(torch.rand(q, q, dtype=torch.float64) + 0.1)
-    true_factors.append(torch.rand(q, n, dtype=torch.float64) + 0.1)
-
-    B = DeepMatrixFactorization._chain_product(true_factors)
-
-    model = DeepMatrixFactorization(dims=dims, constraint="softplus", seed=42)
-    result = model.fit(B, lr=0.08, max_steps=2500, optimizer="adam", verbose=False)
+    model = LowRankMatrixFactorization(
+        rows=m,
+        cols=n,
+        rank=r,
+        model="ugv",
+        constraint="projected_nonnegative",
+        seed=42,
+    )
+    result = model.fit(B, lr=0.05, max_steps=2000, optimizer="adam", verbose=False)
 
     rel_err = torch.linalg.norm(result.reconstruction - B) / torch.linalg.norm(B)
-    print(f"Factor dims: {dims}")
+    print("Demo model: ugv")
+    print(f"Factor shapes: {[tuple(f.shape) for f in result.factors]}")
     print(f"Final loss: {result.loss_history[-1]:.3e}")
     print(f"Relative reconstruction error: {float(rel_err):.3e}")
 
@@ -448,13 +578,22 @@ if __name__ == "__main__":
     args = _parse_args()
     using_mat_workflow = any(
         value is not None
-        for value in (args.input_mat, args.output_mat, args.dims, args.num_factors, args.inner_dim)
+        for value in (
+            args.input_mat,
+            args.output_mat,
+            args.dims,
+            args.num_factors,
+            args.inner_dim,
+            args.rank,
+        )
     )
     if using_mat_workflow:
         if not args.input_mat or not args.output_mat:
             raise SystemExit("Both --input-mat and --output-mat are required for MAT I/O.")
-        if args.dims is None and args.num_factors is None:
-            raise SystemExit("Provide either --dims or --num-factors for MAT I/O.")
+        if args.model == "chain" and args.dims is None and args.num_factors is None:
+            raise SystemExit("For model='chain', provide either --dims or --num-factors.")
+        if args.model in {"uv", "ugv"} and args.rank is None:
+            raise SystemExit("For model='uv' or model='ugv', provide --rank.")
 
         out = factorize_from_mat(
             input_mat_path=args.input_mat,
@@ -462,6 +601,8 @@ if __name__ == "__main__":
             dims=args.dims,
             num_factors=args.num_factors,
             inner_dim=args.inner_dim,
+            rank=args.rank,
+            model=args.model,
             input_key=args.input_key,
             constraint=args.constraint,
             lr=args.lr,
@@ -475,6 +616,3 @@ if __name__ == "__main__":
         print(f"Saved {len(out.factors)} factors to {args.output_mat}")
     else:
         demo()
-
-
-
