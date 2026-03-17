@@ -9,11 +9,10 @@ import torch
 
 from deep_matrix_factorization import build_model_for_matrix
 
-_BASE = Path(r"C:\Users\STEFANOSAVAZZI\Desktop\CIR_decomposition")
 _DEFAULT_INPUTS = {
-    "metal": _BASE / "CIR_20260209T162335_Pit5x10_NS21x1_RF18001_RF28001_MetalCyl_LinOnly.mat",
-    "paper": _BASE / "CIR_20260209T163709_Pit5x10_NS21x1_RF18001_RF28001_PaperCyl_LinOnly.mat",
-    "ptfe":  _BASE / "CIR_20260209T165435_Pit5x10_NS21x1_RF18001_RF28001_PTFECyl_LinOnly.mat",
+    "metal": Path("CIR_20260209T162335_Pit5x10_NS21x1_RF18001_RF28001_MetalCyl_LinOnly.mat"),
+    "paper": Path("CIR_20260209T163709_Pit5x10_NS21x1_RF18001_RF28001_PaperCyl_LinOnly.mat"),
+    "ptfe":  Path("CIR_20260209T165435_Pit5x10_NS21x1_RF18001_RF28001_PTFECyl_LinOnly.mat"),
 }
 _LABELS = list(_DEFAULT_INPUTS.keys())
 _PAIRS = list(combinations(_LABELS, 2))  # (metal,paper), (metal,ptfe), (paper,ptfe)
@@ -114,7 +113,7 @@ def main() -> None:
     parser.add_argument("--input-paper", type=Path, default=_DEFAULT_INPUTS["paper"])
     parser.add_argument("--input-ptfe",  type=Path, default=_DEFAULT_INPUTS["ptfe"])
     parser.add_argument("--input-key", type=str, default="CIR_linear")
-    parser.add_argument("--output-dir", type=Path, default=_BASE / "overlap_window_results")
+    parser.add_argument("--output-dir", type=Path, default=Path("overlap_window_results"))
     parser.add_argument("--window-size", type=int, default=300,
                         help="Window width in number of columns (travel-distance samples).")
     parser.add_argument("--step", type=int, default=150,

@@ -13,7 +13,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--input-mat",
         type=Path,
-        default=Path(r"C:\Users\STEFANOSAVAZZI\Desktop\f\input_B.mat"),
+        default=Path("input_B.mat"),
         help="Path to the source MAT file.",
     )
     parser.add_argument("--source-key", type=str, default="CIR_linear")
@@ -25,12 +25,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--workspace-tmp",
         type=Path,
-        default=Path(r"C:\Users\STEFANOSAVAZZI\Desktop\CIR_decomposition\.codex_tmp_rank_sweep"),
+        default=Path("tmp_rank_sweep"),
     )
     parser.add_argument(
         "--summary-json",
         type=Path,
-        default=Path(r"C:\Users\STEFANOSAVAZZI\Desktop\rank_sweep_overlap_summary.json"),
+        default=Path("rank_sweep_overlap_summary.json"),
     )
     return parser.parse_args()
 
