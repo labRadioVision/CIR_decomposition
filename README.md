@@ -213,3 +213,110 @@ python deep_matrix_factorization.py
 ```
 
 This runs a small synthetic low-rank `ugv` example.
+
+---
+
+## Scripts
+
+### `compare_factorizations.py` — pairwise factorization comparison
+
+Factorizes two MAT files independently with the UGV model and compares their factors.
+
+```bash
+python compare_factorizations.py \
+  --input-a input_B.mat \
+  --input-b input_B_v2.mat \
+  --input-key CIR_linear \
+  --output-dir comparison_results \
+  --rank 7
+```
+
+Outputs (in `--output-dir`):
+
+- `input_B_ugv_rank7.mat`, `input_B_v2_ugv_rank7.mat` — per-file UGV factors
+- `factorization_comparison_rank7.json` — relative reconstruction errors, Frobenius factor differences, singular value spectra
+- `factorization_comparison_rank7.mat` — same metrics in MAT format
+
+---
+
+### `run_window_factorization.py` — sliding-window factorization
+
+Factorizes consecutive (or overlapping) windows of a single matrix using the UGV model.
+
+```bash
+python run_window_factorization.py \
+  --input-mat input_B.mat \
+  --source-key CIR_linear \
+  --output-dir window_factorization_results \
+  --workspace-tmp tmp_window_factorization \
+  --window-size 300 \
+  --step 300 \
+  --max-cols 2100 \
+  --rank 7 \
+  --output-prefix factors_out \
+  --aggregate-name factors_out_windows_ugv_rank7.mat
+```
+
+Pass `--compute-overlap-metrics` when `step < window-size` to also report overlap-region consistency between adjacent windows.
+
+Outputs (in `--output-dir`):
+
+- `factors_out_window_NN.mat` — per-window factors (`H_1`, `H_2`, `H_3`, `B_reconstruction`) plus window metadata
+- `factors_out_windows_ugv_rank7.mat` — aggregate MAT with all windows' factors and optional overlap metrics
+
+---
+
+### `run_overlap_rank_sweep.py` — rank sweep for overlapping windows
+
+Sweeps UGV rank from `--rank-min` to `--rank-max` and measures reconstruction consistency in overlapping regions between adjacent windows. Identifies the rank that minimizes overlap disagreement.
+
+```bash
+python run_overlap_rank_sweep.py \
+  --input-mat input_B.mat \
+  --source-key CIR_linear \
+  --workspace-tmp tmp_rank_sweep \
+  --summary-json rank_sweep_overlap_summary.json \
+  --window-size 300 \
+  --step 150 \
+  --max-cols 2100 \
+  --rank-min 2 \
+  --rank-max 21
+```
+
+Output:
+
+- `rank_sweep_overlap_summary.json` — per-rank mean/min/max overlap disagreement, best overall rank, and best rank per overlap pair
+
+---
+
+### `compare_overlap_windows.py` — three-material windowed comparison
+
+Factorizes overlapping windows of three material CIR matrices (metal, paper, PTFE) in parallel and computes pairwise factor differences across all windows. Useful for identifying where in the travel range the materials are most distinguishable.
+
+Place the three source MAT files in the working directory, then run:
+
+```bash
+python compare_overlap_windows.py \
+  --input-metal CIR_20260209T162335_Pit5x10_NS21x1_RF18001_RF28001_MetalCyl_LinOnly.mat \
+  --input-paper CIR_20260209T163709_Pit5x10_NS21x1_RF18001_RF28001_PaperCyl_LinOnly.mat \
+  --input-ptfe  CIR_20260209T165435_Pit5x10_NS21x1_RF18001_RF28001_PTFECyl_LinOnly.mat \
+  --input-key CIR_linear \
+  --output-dir overlap_window_results \
+  --window-size 300 \
+  --step 150 \
+  --max-cols 2100 \
+  --rank 7
+```
+
+Per-window metrics reported for every material pair (`metal_vs_paper`, `metal_vs_ptfe`, `paper_vs_ptfe`):
+
+- relative reconstruction error per material
+- Frobenius norm difference of raw factors (U, G, V)
+- L2 distance between sorted singular value spectra of U, G, V
+- combined singular distance (sum of the three spectral L2 distances)
+- raw input relative difference
+
+Outputs (in `--output-dir`):
+
+- `overlap_window_comparison_rank7.json` — full per-window results, strongest/weakest window by mean combined singular distance
+- `overlap_window_comparison_rank7.mat` — per-pair combined singular distances and raw input differences across all windows
