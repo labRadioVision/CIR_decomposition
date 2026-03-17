@@ -218,24 +218,26 @@ This runs a small synthetic low-rank `ugv` example.
 
 ## Scripts
 
-### `compare_factorizations.py` — pairwise factorization comparison
+### `run_overlap_rank_sweep.py` — rank sweep for overlapping windows
 
-Factorizes two MAT files independently with the UGV model and compares their factors.
+Sweeps UGV rank from `--rank-min` to `--rank-max` and measures reconstruction consistency in overlapping regions between adjacent windows. Identifies the rank that minimizes overlap disagreement.
 
 ```bash
-python compare_factorizations.py \
-  --input-a input_B.mat \
-  --input-b input_B_v2.mat \
-  --input-key CIR_linear \
-  --output-dir comparison_results \
-  --rank 7
+python run_overlap_rank_sweep.py \
+  --input-mat input_B.mat \
+  --source-key CIR_linear \
+  --workspace-tmp tmp_rank_sweep \
+  --summary-json rank_sweep_overlap_summary.json \
+  --window-size 300 \
+  --step 150 \
+  --max-cols 2100 \
+  --rank-min 2 \
+  --rank-max 21
 ```
 
-Outputs (in `--output-dir`):
+Output:
 
-- `input_B_ugv_rank7.mat`, `input_B_v2_ugv_rank7.mat` — per-file UGV factors
-- `factorization_comparison_rank7.json` — relative reconstruction errors, Frobenius factor differences, singular value spectra
-- `factorization_comparison_rank7.mat` — same metrics in MAT format
+- `rank_sweep_overlap_summary.json` — per-rank mean/min/max overlap disagreement, best overall rank, and best rank per overlap pair
 
 ---
 
@@ -266,28 +268,6 @@ Outputs (in `--output-dir`):
 
 ---
 
-### `run_overlap_rank_sweep.py` — rank sweep for overlapping windows
-
-Sweeps UGV rank from `--rank-min` to `--rank-max` and measures reconstruction consistency in overlapping regions between adjacent windows. Identifies the rank that minimizes overlap disagreement.
-
-```bash
-python run_overlap_rank_sweep.py \
-  --input-mat input_B.mat \
-  --source-key CIR_linear \
-  --workspace-tmp tmp_rank_sweep \
-  --summary-json rank_sweep_overlap_summary.json \
-  --window-size 300 \
-  --step 150 \
-  --max-cols 2100 \
-  --rank-min 2 \
-  --rank-max 21
-```
-
-Output:
-
-- `rank_sweep_overlap_summary.json` — per-rank mean/min/max overlap disagreement, best overall rank, and best rank per overlap pair
-
----
 
 ### `compare_overlap_windows.py` — three-material windowed comparison
 
