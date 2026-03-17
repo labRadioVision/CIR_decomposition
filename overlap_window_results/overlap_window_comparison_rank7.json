@@ -1,0 +1,1716 @@
+{
+  "rank": 7,
+  "window_size_cols": 300,
+  "step_cols": 150,
+  "max_cols": 2100,
+  "num_windows": 13,
+  "material_offset_cm": [
+    0.0,
+    5.0,
+    10.0,
+    15.0,
+    20.0,
+    25.0,
+    30.0,
+    35.0,
+    40.0,
+    45.0,
+    50.0,
+    55.0,
+    60.0,
+    65.0,
+    70.0,
+    75.0,
+    80.0,
+    85.0,
+    90.0,
+    95.0,
+    100.0
+  ],
+  "travel_distances_mm_range": [
+    3500.03502932662,
+    3649.797001124736
+  ],
+  "strongest_window_by_mean_combined_singular_distance": {
+    "window_index": 2,
+    "col_range": [
+      150,
+      449
+    ],
+    "travel_distance_range_mm": [
+      3510.7374093979483,
+      3532.0708203401286
+    ],
+    "pairwise": [
+      {
+        "pair": "metal_vs_paper",
+        "relative_reconstruction_error": {
+          "metal": 0.045535676825797254,
+          "paper": 0.008054378224246404
+        },
+        "raw_factor_differences_fro": {
+          "U": 2.1710577628848453,
+          "G": 1.6775563528151811,
+          "V": 5.780857166281709
+        },
+        "spectral_distance_l2": {
+          "U_singular_values": 1.9030293015989466,
+          "G_singular_values": 1.5243416277124455,
+          "V_singular_values": 4.9645686359054935
+        },
+        "combined_singular_distance": 8.391939565216886,
+        "leading_values": {
+          "metal": {
+            "U_sv1": 2.4678232764956367,
+            "G_sv1": 1.30785664898514,
+            "V_sv1": 11.039153809849392
+          },
+          "paper": {
+            "U_sv1": 2.6032212457827018,
+            "G_sv1": 1.4215355814831006,
+            "V_sv1": 9.133648571279547
+          }
+        },
+        "raw_input_relative_difference": 0.24195998952702535
+      },
+      {
+        "pair": "metal_vs_ptfe",
+        "relative_reconstruction_error": {
+          "metal": 0.045535676825797254,
+          "ptfe": 0.04075652186635576
+        },
+        "raw_factor_differences_fro": {
+          "U": 0.4428163407239558,
+          "G": 0.06586494079127245,
+          "V": 0.4999281659763014
+        },
+        "spectral_distance_l2": {
+          "U_singular_values": 0.0727408923749062,
+          "G_singular_values": 0.06487971585964883,
+          "V_singular_values": 0.49487132258314454
+        },
+        "combined_singular_distance": 0.6324919308176996,
+        "leading_values": {
+          "metal": {
+            "U_sv1": 2.4678232764956367,
+            "G_sv1": 1.30785664898514,
+            "V_sv1": 11.039153809849392
+          },
+          "ptfe": {
+            "U_sv1": 2.5404307527482057,
+            "G_sv1": 1.242977338811735,
+            "V_sv1": 10.544283046403606
+          }
+        },
+        "raw_input_relative_difference": 0.18851203599351848
+      },
+      {
+        "pair": "paper_vs_ptfe",
+        "relative_reconstruction_error": {
+          "paper": 0.008054378224246404,
+          "ptfe": 0.04075652186635576
+        },
+        "raw_factor_differences_fro": {
+          "U": 2.142956672940983,
+          "G": 1.6796580521729931,
+          "V": 5.614424662757141
+        },
+        "spectral_distance_l2": {
+          "U_singular_values": 1.9008787864684784,
+          "G_singular_values": 1.53042603087546,
+          "V_singular_values": 4.796167206457547
+        },
+        "combined_singular_distance": 8.227472023801486,
+        "leading_values": {
+          "paper": {
+            "U_sv1": 2.6032212457827018,
+            "G_sv1": 1.4215355814831006,
+            "V_sv1": 9.133648571279547
+          },
+          "ptfe": {
+            "U_sv1": 2.5404307527482057,
+            "G_sv1": 1.242977338811735,
+            "V_sv1": 10.544283046403606
+          }
+        },
+        "raw_input_relative_difference": 0.17780843822192202
+      }
+    ],
+    "mean_combined_singular_distance": 5.750634506612023,
+    "reconstruction_errors": {
+      "metal": 0.045535676825797254,
+      "paper": 0.008054378224246404,
+      "ptfe": 0.04075652186635576
+    }
+  },
+  "weakest_window_by_mean_combined_singular_distance": {
+    "window_index": 1,
+    "col_range": [
+      0,
+      299
+    ],
+    "travel_distance_range_mm": [
+      3500.03502932662,
+      3521.3684402688004
+    ],
+    "pairwise": [
+      {
+        "pair": "metal_vs_paper",
+        "relative_reconstruction_error": {
+          "metal": 0.014431561412851727,
+          "paper": 0.04428784178213145
+        },
+        "raw_factor_differences_fro": {
+          "U": 0.4662240619941174,
+          "G": 0.10858694727766922,
+          "V": 0.4671220013341866
+        },
+        "spectral_distance_l2": {
+          "U_singular_values": 0.1052516371917014,
+          "G_singular_values": 0.1080309768468254,
+          "V_singular_values": 0.4472808775642676
+        },
+        "combined_singular_distance": 0.6605634916027944,
+        "leading_values": {
+          "metal": {
+            "U_sv1": 2.6104484062919933,
+            "G_sv1": 1.3995793147004423,
+            "V_sv1": 8.344822597801398
+          },
+          "paper": {
+            "U_sv1": 2.7155847728781826,
+            "G_sv1": 1.2915645841261492,
+            "V_sv1": 7.897676061729446
+          }
+        },
+        "raw_input_relative_difference": 0.19156595954537575
+      },
+      {
+        "pair": "metal_vs_ptfe",
+        "relative_reconstruction_error": {
+          "metal": 0.014431561412851727,
+          "ptfe": 0.01574361686138521
+        },
+        "raw_factor_differences_fro": {
+          "U": 0.44331541470752733,
+          "G": 0.06000949623410021,
+          "V": 0.38690975653949156
+        },
+        "spectral_distance_l2": {
+          "U_singular_values": 0.06256777452200765,
+          "G_singular_values": 0.05920962457615638,
+          "V_singular_values": 0.37869252634308503
+        },
+        "combined_singular_distance": 0.500469925441249,
+        "leading_values": {
+          "metal": {
+            "U_sv1": 2.6104484062919933,
+            "G_sv1": 1.3995793147004423,
+            "V_sv1": 8.344822597801398
+          },
+          "ptfe": {
+            "U_sv1": 2.672867735379675,
+            "G_sv1": 1.3403811094228786,
+            "V_sv1": 7.966148792798171
+          }
+        },
+        "raw_input_relative_difference": 0.1737761507415491
+      },
+      {
+        "pair": "paper_vs_ptfe",
+        "relative_reconstruction_error": {
+          "paper": 0.04428784178213145,
+          "ptfe": 0.01574361686138521
+        },
+        "raw_factor_differences_fro": {
+          "U": 0.2815590029510751,
+          "G": 0.0490466912466538,
+          "V": 0.13313458038722706
+        },
+        "spectral_distance_l2": {
+          "U_singular_values": 0.04313466774579547,
+          "G_singular_values": 0.04887480609275475,
+          "V_singular_values": 0.06919519919526324
+        },
+        "combined_singular_distance": 0.16120467303381344,
+        "leading_values": {
+          "paper": {
+            "U_sv1": 2.7155847728781826,
+            "G_sv1": 1.2915645841261492,
+            "V_sv1": 7.897676061729446
+          },
+          "ptfe": {
+            "U_sv1": 2.672867735379675,
+            "G_sv1": 1.3403811094228786,
+            "V_sv1": 7.966148792798171
+          }
+        },
+        "raw_input_relative_difference": 0.11524970935338152
+      }
+    ],
+    "mean_combined_singular_distance": 0.4407460300259523,
+    "reconstruction_errors": {
+      "metal": 0.014431561412851727,
+      "paper": 0.04428784178213145,
+      "ptfe": 0.01574361686138521
+    }
+  },
+  "window_results": [
+    {
+      "window_index": 1,
+      "col_range": [
+        0,
+        299
+      ],
+      "travel_distance_range_mm": [
+        3500.03502932662,
+        3521.3684402688004
+      ],
+      "pairwise": [
+        {
+          "pair": "metal_vs_paper",
+          "relative_reconstruction_error": {
+            "metal": 0.014431561412851727,
+            "paper": 0.04428784178213145
+          },
+          "raw_factor_differences_fro": {
+            "U": 0.4662240619941174,
+            "G": 0.10858694727766922,
+            "V": 0.4671220013341866
+          },
+          "spectral_distance_l2": {
+            "U_singular_values": 0.1052516371917014,
+            "G_singular_values": 0.1080309768468254,
+            "V_singular_values": 0.4472808775642676
+          },
+          "combined_singular_distance": 0.6605634916027944,
+          "leading_values": {
+            "metal": {
+              "U_sv1": 2.6104484062919933,
+              "G_sv1": 1.3995793147004423,
+              "V_sv1": 8.344822597801398
+            },
+            "paper": {
+              "U_sv1": 2.7155847728781826,
+              "G_sv1": 1.2915645841261492,
+              "V_sv1": 7.897676061729446
+            }
+          },
+          "raw_input_relative_difference": 0.19156595954537575
+        },
+        {
+          "pair": "metal_vs_ptfe",
+          "relative_reconstruction_error": {
+            "metal": 0.014431561412851727,
+            "ptfe": 0.01574361686138521
+          },
+          "raw_factor_differences_fro": {
+            "U": 0.44331541470752733,
+            "G": 0.06000949623410021,
+            "V": 0.38690975653949156
+          },
+          "spectral_distance_l2": {
+            "U_singular_values": 0.06256777452200765,
+            "G_singular_values": 0.05920962457615638,
+            "V_singular_values": 0.37869252634308503
+          },
+          "combined_singular_distance": 0.500469925441249,
+          "leading_values": {
+            "metal": {
+              "U_sv1": 2.6104484062919933,
+              "G_sv1": 1.3995793147004423,
+              "V_sv1": 8.344822597801398
+            },
+            "ptfe": {
+              "U_sv1": 2.672867735379675,
+              "G_sv1": 1.3403811094228786,
+              "V_sv1": 7.966148792798171
+            }
+          },
+          "raw_input_relative_difference": 0.1737761507415491
+        },
+        {
+          "pair": "paper_vs_ptfe",
+          "relative_reconstruction_error": {
+            "paper": 0.04428784178213145,
+            "ptfe": 0.01574361686138521
+          },
+          "raw_factor_differences_fro": {
+            "U": 0.2815590029510751,
+            "G": 0.0490466912466538,
+            "V": 0.13313458038722706
+          },
+          "spectral_distance_l2": {
+            "U_singular_values": 0.04313466774579547,
+            "G_singular_values": 0.04887480609275475,
+            "V_singular_values": 0.06919519919526324
+          },
+          "combined_singular_distance": 0.16120467303381344,
+          "leading_values": {
+            "paper": {
+              "U_sv1": 2.7155847728781826,
+              "G_sv1": 1.2915645841261492,
+              "V_sv1": 7.897676061729446
+            },
+            "ptfe": {
+              "U_sv1": 2.672867735379675,
+              "G_sv1": 1.3403811094228786,
+              "V_sv1": 7.966148792798171
+            }
+          },
+          "raw_input_relative_difference": 0.11524970935338152
+        }
+      ],
+      "mean_combined_singular_distance": 0.4407460300259523,
+      "reconstruction_errors": {
+        "metal": 0.014431561412851727,
+        "paper": 0.04428784178213145,
+        "ptfe": 0.01574361686138521
+      }
+    },
+    {
+      "window_index": 2,
+      "col_range": [
+        150,
+        449
+      ],
+      "travel_distance_range_mm": [
+        3510.7374093979483,
+        3532.0708203401286
+      ],
+      "pairwise": [
+        {
+          "pair": "metal_vs_paper",
+          "relative_reconstruction_error": {
+            "metal": 0.045535676825797254,
+            "paper": 0.008054378224246404
+          },
+          "raw_factor_differences_fro": {
+            "U": 2.1710577628848453,
+            "G": 1.6775563528151811,
+            "V": 5.780857166281709
+          },
+          "spectral_distance_l2": {
+            "U_singular_values": 1.9030293015989466,
+            "G_singular_values": 1.5243416277124455,
+            "V_singular_values": 4.9645686359054935
+          },
+          "combined_singular_distance": 8.391939565216886,
+          "leading_values": {
+            "metal": {
+              "U_sv1": 2.4678232764956367,
+              "G_sv1": 1.30785664898514,
+              "V_sv1": 11.039153809849392
+            },
+            "paper": {
+              "U_sv1": 2.6032212457827018,
+              "G_sv1": 1.4215355814831006,
+              "V_sv1": 9.133648571279547
+            }
+          },
+          "raw_input_relative_difference": 0.24195998952702535
+        },
+        {
+          "pair": "metal_vs_ptfe",
+          "relative_reconstruction_error": {
+            "metal": 0.045535676825797254,
+            "ptfe": 0.04075652186635576
+          },
+          "raw_factor_differences_fro": {
+            "U": 0.4428163407239558,
+            "G": 0.06586494079127245,
+            "V": 0.4999281659763014
+          },
+          "spectral_distance_l2": {
+            "U_singular_values": 0.0727408923749062,
+            "G_singular_values": 0.06487971585964883,
+            "V_singular_values": 0.49487132258314454
+          },
+          "combined_singular_distance": 0.6324919308176996,
+          "leading_values": {
+            "metal": {
+              "U_sv1": 2.4678232764956367,
+              "G_sv1": 1.30785664898514,
+              "V_sv1": 11.039153809849392
+            },
+            "ptfe": {
+              "U_sv1": 2.5404307527482057,
+              "G_sv1": 1.242977338811735,
+              "V_sv1": 10.544283046403606
+            }
+          },
+          "raw_input_relative_difference": 0.18851203599351848
+        },
+        {
+          "pair": "paper_vs_ptfe",
+          "relative_reconstruction_error": {
+            "paper": 0.008054378224246404,
+            "ptfe": 0.04075652186635576
+          },
+          "raw_factor_differences_fro": {
+            "U": 2.142956672940983,
+            "G": 1.6796580521729931,
+            "V": 5.614424662757141
+          },
+          "spectral_distance_l2": {
+            "U_singular_values": 1.9008787864684784,
+            "G_singular_values": 1.53042603087546,
+            "V_singular_values": 4.796167206457547
+          },
+          "combined_singular_distance": 8.227472023801486,
+          "leading_values": {
+            "paper": {
+              "U_sv1": 2.6032212457827018,
+              "G_sv1": 1.4215355814831006,
+              "V_sv1": 9.133648571279547
+            },
+            "ptfe": {
+              "U_sv1": 2.5404307527482057,
+              "G_sv1": 1.242977338811735,
+              "V_sv1": 10.544283046403606
+            }
+          },
+          "raw_input_relative_difference": 0.17780843822192202
+        }
+      ],
+      "mean_combined_singular_distance": 5.750634506612023,
+      "reconstruction_errors": {
+        "metal": 0.045535676825797254,
+        "paper": 0.008054378224246404,
+        "ptfe": 0.04075652186635576
+      }
+    },
+    {
+      "window_index": 3,
+      "col_range": [
+        300,
+        599
+      ],
+      "travel_distance_range_mm": [
+        3521.439789469276,
+        3542.7732004114564
+      ],
+      "pairwise": [
+        {
+          "pair": "metal_vs_paper",
+          "relative_reconstruction_error": {
+            "metal": 0.00628109244483678,
+            "paper": 0.012276467146684865
+          },
+          "raw_factor_differences_fro": {
+            "U": 2.5394465718294654,
+            "G": 1.8205548828377143,
+            "V": 7.073677541683643
+          },
+          "spectral_distance_l2": {
+            "U_singular_values": 0.44949648932417374,
+            "G_singular_values": 0.6986609618145443,
+            "V_singular_values": 2.8432002154111355
+          },
+          "combined_singular_distance": 3.9913576665498534,
+          "leading_values": {
+            "metal": {
+              "U_sv1": 2.1762261257866253,
+              "G_sv1": 1.0149901899071145,
+              "V_sv1": 9.282210742381572
+            },
+            "paper": {
+              "U_sv1": 2.5780314445819603,
+              "G_sv1": 1.0803043776926449,
+              "V_sv1": 7.125934610556651
+            }
+          },
+          "raw_input_relative_difference": 0.33767677383420963
+        },
+        {
+          "pair": "metal_vs_ptfe",
+          "relative_reconstruction_error": {
+            "metal": 0.00628109244483678,
+            "ptfe": 0.004134782530394739
+          },
+          "raw_factor_differences_fro": {
+            "U": 2.543120323128965,
+            "G": 0.9769284363122567,
+            "V": 4.532863528609574
+          },
+          "spectral_distance_l2": {
+            "U_singular_values": 0.272851030664183,
+            "G_singular_values": 0.2470206673955229,
+            "V_singular_values": 2.4041082805327005
+          },
+          "combined_singular_distance": 2.9239799785924063,
+          "leading_values": {
+            "metal": {
+              "U_sv1": 2.1762261257866253,
+              "G_sv1": 1.0149901899071145,
+              "V_sv1": 9.282210742381572
+            },
+            "ptfe": {
+              "U_sv1": 2.1209727671628307,
+              "G_sv1": 1.2113841718451208,
+              "V_sv1": 7.004464075438237
+            }
+          },
+          "raw_input_relative_difference": 0.2225110895723142
+        },
+        {
+          "pair": "paper_vs_ptfe",
+          "relative_reconstruction_error": {
+            "paper": 0.012276467146684865,
+            "ptfe": 0.004134782530394739
+          },
+          "raw_factor_differences_fro": {
+            "U": 2.577126401838675,
+            "G": 1.7753873460228606,
+            "V": 5.215696131442952
+          },
+          "spectral_distance_l2": {
+            "U_singular_values": 0.5331059681013329,
+            "G_singular_values": 0.813429072247831,
+            "V_singular_values": 2.361289705782403
+          },
+          "combined_singular_distance": 3.7078247461315668,
+          "leading_values": {
+            "paper": {
+              "U_sv1": 2.5780314445819603,
+              "G_sv1": 1.0803043776926449,
+              "V_sv1": 7.125934610556651
+            },
+            "ptfe": {
+              "U_sv1": 2.1209727671628307,
+              "G_sv1": 1.2113841718451208,
+              "V_sv1": 7.004464075438237
+            }
+          },
+          "raw_input_relative_difference": 0.27074025309204897
+        }
+      ],
+      "mean_combined_singular_distance": 3.541054130424609,
+      "reconstruction_errors": {
+        "metal": 0.00628109244483678,
+        "paper": 0.012276467146684865,
+        "ptfe": 0.004134782530394739
+      }
+    },
+    {
+      "window_index": 4,
+      "col_range": [
+        450,
+        749
+      ],
+      "travel_distance_range_mm": [
+        3532.1421695406043,
+        3553.475580482784
+      ],
+      "pairwise": [
+        {
+          "pair": "metal_vs_paper",
+          "relative_reconstruction_error": {
+            "metal": 0.0887999969316155,
+            "paper": 0.009031959864725152
+          },
+          "raw_factor_differences_fro": {
+            "U": 1.0841103233947889,
+            "G": 0.8486174301526599,
+            "V": 6.453089319132624
+          },
+          "spectral_distance_l2": {
+            "U_singular_values": 0.9049136070135134,
+            "G_singular_values": 0.7769483425640014,
+            "V_singular_values": 5.917333456406721
+          },
+          "combined_singular_distance": 7.5991954059842355,
+          "leading_values": {
+            "metal": {
+              "U_sv1": 1.2053024412776867,
+              "G_sv1": 0.4360894333044049,
+              "V_sv1": 9.606164515599971
+            },
+            "paper": {
+              "U_sv1": 1.351847612688679,
+              "G_sv1": 0.7469274828173704,
+              "V_sv1": 4.754142312718652
+            }
+          },
+          "raw_input_relative_difference": 0.2534805930028096
+        },
+        {
+          "pair": "metal_vs_ptfe",
+          "relative_reconstruction_error": {
+            "metal": 0.0887999969316155,
+            "ptfe": 0.03239709854077997
+          },
+          "raw_factor_differences_fro": {
+            "U": 0.6224333425636264,
+            "G": 0.21230973675460316,
+            "V": 2.14043721020179
+          },
+          "spectral_distance_l2": {
+            "U_singular_values": 0.505234876909668,
+            "G_singular_values": 0.1895996399285995,
+            "V_singular_values": 1.8444458325291864
+          },
+          "combined_singular_distance": 2.539280349367454,
+          "leading_values": {
+            "metal": {
+              "U_sv1": 1.2053024412776867,
+              "G_sv1": 0.4360894333044049,
+              "V_sv1": 9.606164515599971
+            },
+            "ptfe": {
+              "U_sv1": 1.3661186433634596,
+              "G_sv1": 0.39296247668376305,
+              "V_sv1": 8.823282754006213
+            }
+          },
+          "raw_input_relative_difference": 0.2065447812301621
+        },
+        {
+          "pair": "paper_vs_ptfe",
+          "relative_reconstruction_error": {
+            "paper": 0.009031959864725152,
+            "ptfe": 0.03239709854077997
+          },
+          "raw_factor_differences_fro": {
+            "U": 1.1603863288955367,
+            "G": 0.8342145512434361,
+            "V": 5.6318185560235055
+          },
+          "spectral_distance_l2": {
+            "U_singular_values": 0.7183259261598928,
+            "G_singular_values": 0.7268877706276438,
+            "V_singular_values": 4.732909487209368
+          },
+          "combined_singular_distance": 6.178123183996905,
+          "leading_values": {
+            "paper": {
+              "U_sv1": 1.351847612688679,
+              "G_sv1": 0.7469274828173704,
+              "V_sv1": 4.754142312718652
+            },
+            "ptfe": {
+              "U_sv1": 1.3661186433634596,
+              "G_sv1": 0.39296247668376305,
+              "V_sv1": 8.823282754006213
+            }
+          },
+          "raw_input_relative_difference": 0.22227074949831258
+        }
+      ],
+      "mean_combined_singular_distance": 5.438866313116198,
+      "reconstruction_errors": {
+        "metal": 0.0887999969316155,
+        "paper": 0.009031959864725152,
+        "ptfe": 0.03239709854077997
+      }
+    },
+    {
+      "window_index": 5,
+      "col_range": [
+        600,
+        899
+      ],
+      "travel_distance_range_mm": [
+        3542.844549611932,
+        3564.1779605541124
+      ],
+      "pairwise": [
+        {
+          "pair": "metal_vs_paper",
+          "relative_reconstruction_error": {
+            "metal": 0.05814786441578592,
+            "paper": 0.04642145160846495
+          },
+          "raw_factor_differences_fro": {
+            "U": 0.7930256585021616,
+            "G": 0.3172485584932743,
+            "V": 2.87270144431084
+          },
+          "spectral_distance_l2": {
+            "U_singular_values": 0.6032838031627532,
+            "G_singular_values": 0.26065325465825234,
+            "V_singular_values": 2.5133353766413884
+          },
+          "combined_singular_distance": 3.377272434462394,
+          "leading_values": {
+            "metal": {
+              "U_sv1": 0.9451356117732531,
+              "G_sv1": 0.35277811183006325,
+              "V_sv1": 5.5948096390789654
+            },
+            "paper": {
+              "U_sv1": 1.1701215094186799,
+              "G_sv1": 0.34343906483283854,
+              "V_sv1": 4.615810592955821
+            }
+          },
+          "raw_input_relative_difference": 0.3209993012008164
+        },
+        {
+          "pair": "metal_vs_ptfe",
+          "relative_reconstruction_error": {
+            "metal": 0.05814786441578592,
+            "ptfe": 0.0791706829534264
+          },
+          "raw_factor_differences_fro": {
+            "U": 0.9492147915328203,
+            "G": 0.37179900240538255,
+            "V": 5.723802490870377
+          },
+          "spectral_distance_l2": {
+            "U_singular_values": 0.8044606816432028,
+            "G_singular_values": 0.12952946443947067,
+            "V_singular_values": 3.7212776526786384
+          },
+          "combined_singular_distance": 4.655267798761312,
+          "leading_values": {
+            "metal": {
+              "U_sv1": 0.9451356117732531,
+              "G_sv1": 0.35277811183006325,
+              "V_sv1": 5.5948096390789654
+            },
+            "ptfe": {
+              "U_sv1": 1.4110755670984731,
+              "G_sv1": 0.32969905204534045,
+              "V_sv1": 6.575490828222269
+            }
+          },
+          "raw_input_relative_difference": 0.4657191394317757
+        },
+        {
+          "pair": "paper_vs_ptfe",
+          "relative_reconstruction_error": {
+            "paper": 0.04642145160846495,
+            "ptfe": 0.0791706829534264
+          },
+          "raw_factor_differences_fro": {
+            "U": 1.141304817337779,
+            "G": 0.47815288076764745,
+            "V": 6.318265137861437
+          },
+          "spectral_distance_l2": {
+            "U_singular_values": 0.4766265618275151,
+            "G_singular_values": 0.20479288386964525,
+            "V_singular_values": 2.9174400505196187
+          },
+          "combined_singular_distance": 3.5988594962167793,
+          "leading_values": {
+            "paper": {
+              "U_sv1": 1.1701215094186799,
+              "G_sv1": 0.34343906483283854,
+              "V_sv1": 4.615810592955821
+            },
+            "ptfe": {
+              "U_sv1": 1.4110755670984731,
+              "G_sv1": 0.32969905204534045,
+              "V_sv1": 6.575490828222269
+            }
+          },
+          "raw_input_relative_difference": 0.5125610440275236
+        }
+      ],
+      "mean_combined_singular_distance": 3.877133243146828,
+      "reconstruction_errors": {
+        "metal": 0.05814786441578592,
+        "paper": 0.04642145160846495,
+        "ptfe": 0.0791706829534264
+      }
+    },
+    {
+      "window_index": 6,
+      "col_range": [
+        750,
+        1049
+      ],
+      "travel_distance_range_mm": [
+        3553.54692968326,
+        3574.8803406254406
+      ],
+      "pairwise": [
+        {
+          "pair": "metal_vs_paper",
+          "relative_reconstruction_error": {
+            "metal": 0.09485225676164925,
+            "paper": 0.021825537211559616
+          },
+          "raw_factor_differences_fro": {
+            "U": 0.6860977002755256,
+            "G": 0.31483743984715573,
+            "V": 2.8811098804688706
+          },
+          "spectral_distance_l2": {
+            "U_singular_values": 0.5180082203782498,
+            "G_singular_values": 0.2500645169017052,
+            "V_singular_values": 2.271496747276774
+          },
+          "combined_singular_distance": 3.039569484556729,
+          "leading_values": {
+            "metal": {
+              "U_sv1": 0.690236852005316,
+              "G_sv1": 0.24243049041462875,
+              "V_sv1": 4.435574891885786
+            },
+            "paper": {
+              "U_sv1": 0.7057193744894715,
+              "G_sv1": 0.24878681088106083,
+              "V_sv1": 4.408757571354272
+            }
+          },
+          "raw_input_relative_difference": 0.2963215174180348
+        },
+        {
+          "pair": "metal_vs_ptfe",
+          "relative_reconstruction_error": {
+            "metal": 0.09485225676164925,
+            "ptfe": 0.02586856682106729
+          },
+          "raw_factor_differences_fro": {
+            "U": 1.1037479133352266,
+            "G": 0.4398665458534007,
+            "V": 5.012899966226423
+          },
+          "spectral_distance_l2": {
+            "U_singular_values": 0.918278984890409,
+            "G_singular_values": 0.3146259983996745,
+            "V_singular_values": 4.181901666229394
+          },
+          "combined_singular_distance": 5.414806649519478,
+          "leading_values": {
+            "metal": {
+              "U_sv1": 0.690236852005316,
+              "G_sv1": 0.24243049041462875,
+              "V_sv1": 4.435574891885786
+            },
+            "ptfe": {
+              "U_sv1": 1.0774390352559233,
+              "G_sv1": 0.3123973096139759,
+              "V_sv1": 5.180869644683024
+            }
+          },
+          "raw_input_relative_difference": 1.1538193387403697
+        },
+        {
+          "pair": "paper_vs_ptfe",
+          "relative_reconstruction_error": {
+            "paper": 0.021825537211559616,
+            "ptfe": 0.02586856682106729
+          },
+          "raw_factor_differences_fro": {
+            "U": 1.1868098946205528,
+            "G": 0.294095444099225,
+            "V": 4.454446952692043
+          },
+          "spectral_distance_l2": {
+            "U_singular_values": 0.5174494270488289,
+            "G_singular_values": 0.09127404649318904,
+            "V_singular_values": 2.056694077888733
+          },
+          "combined_singular_distance": 2.665417551430751,
+          "leading_values": {
+            "paper": {
+              "U_sv1": 0.7057193744894715,
+              "G_sv1": 0.24878681088106083,
+              "V_sv1": 4.408757571354272
+            },
+            "ptfe": {
+              "U_sv1": 1.0774390352559233,
+              "G_sv1": 0.3123973096139759,
+              "V_sv1": 5.180869644683024
+            }
+          },
+          "raw_input_relative_difference": 1.2381542209506256
+        }
+      ],
+      "mean_combined_singular_distance": 3.706597895168986,
+      "reconstruction_errors": {
+        "metal": 0.09485225676164925,
+        "paper": 0.021825537211559616,
+        "ptfe": 0.02586856682106729
+      }
+    },
+    {
+      "window_index": 7,
+      "col_range": [
+        900,
+        1199
+      ],
+      "travel_distance_range_mm": [
+        3564.2493097545876,
+        3585.5827206967683
+      ],
+      "pairwise": [
+        {
+          "pair": "metal_vs_paper",
+          "relative_reconstruction_error": {
+            "metal": 0.06531380216875292,
+            "paper": 0.027732259647249104
+          },
+          "raw_factor_differences_fro": {
+            "U": 0.6015902511367192,
+            "G": 0.22262512583370717,
+            "V": 3.105368459164955
+          },
+          "spectral_distance_l2": {
+            "U_singular_values": 0.3887497055150743,
+            "G_singular_values": 0.15715236627668605,
+            "V_singular_values": 2.5085146360252404
+          },
+          "combined_singular_distance": 3.054416707817001,
+          "leading_values": {
+            "metal": {
+              "U_sv1": 0.6931869346569488,
+              "G_sv1": 0.14695548902788858,
+              "V_sv1": 5.9854053144159245
+            },
+            "paper": {
+              "U_sv1": 0.6813073630851179,
+              "G_sv1": 0.17961289329949018,
+              "V_sv1": 5.449189283851926
+            }
+          },
+          "raw_input_relative_difference": 0.22555673414768906
+        },
+        {
+          "pair": "metal_vs_ptfe",
+          "relative_reconstruction_error": {
+            "metal": 0.06531380216875292,
+            "ptfe": 0.033831527101674495
+          },
+          "raw_factor_differences_fro": {
+            "U": 0.931474899859711,
+            "G": 0.29266205649868277,
+            "V": 4.311061849706812
+          },
+          "spectral_distance_l2": {
+            "U_singular_values": 0.7730535324357962,
+            "G_singular_values": 0.19992689160336752,
+            "V_singular_values": 3.6800365651831997
+          },
+          "combined_singular_distance": 4.653016989222364,
+          "leading_values": {
+            "metal": {
+              "U_sv1": 0.6931869346569488,
+              "G_sv1": 0.14695548902788858,
+              "V_sv1": 5.9854053144159245
+            },
+            "ptfe": {
+              "U_sv1": 1.1110182702117666,
+              "G_sv1": 0.24343374407243173,
+              "V_sv1": 4.923607760345281
+            }
+          },
+          "raw_input_relative_difference": 0.5702317520903198
+        },
+        {
+          "pair": "paper_vs_ptfe",
+          "relative_reconstruction_error": {
+            "paper": 0.027732259647249104,
+            "ptfe": 0.033831527101674495
+          },
+          "raw_factor_differences_fro": {
+            "U": 1.0822142416452352,
+            "G": 0.32001170805280643,
+            "V": 4.767414705373359
+          },
+          "spectral_distance_l2": {
+            "U_singular_values": 0.5082163509840135,
+            "G_singular_values": 0.07269926728703803,
+            "V_singular_values": 1.2175481099639012
+          },
+          "combined_singular_distance": 1.7984637282349527,
+          "leading_values": {
+            "paper": {
+              "U_sv1": 0.6813073630851179,
+              "G_sv1": 0.17961289329949018,
+              "V_sv1": 5.449189283851926
+            },
+            "ptfe": {
+              "U_sv1": 1.1110182702117666,
+              "G_sv1": 0.24343374407243173,
+              "V_sv1": 4.923607760345281
+            }
+          },
+          "raw_input_relative_difference": 0.6366416399390492
+        }
+      ],
+      "mean_combined_singular_distance": 3.168632475091439,
+      "reconstruction_errors": {
+        "metal": 0.06531380216875292,
+        "paper": 0.027732259647249104,
+        "ptfe": 0.033831527101674495
+      }
+    },
+    {
+      "window_index": 8,
+      "col_range": [
+        1050,
+        1349
+      ],
+      "travel_distance_range_mm": [
+        3574.9516898259158,
+        3596.2851007680965
+      ],
+      "pairwise": [
+        {
+          "pair": "metal_vs_paper",
+          "relative_reconstruction_error": {
+            "metal": 0.11737978057204097,
+            "paper": 0.04390553160062904
+          },
+          "raw_factor_differences_fro": {
+            "U": 0.7335017716391882,
+            "G": 0.2575218863328864,
+            "V": 2.5724128197165705
+          },
+          "spectral_distance_l2": {
+            "U_singular_values": 0.45970177637257176,
+            "G_singular_values": 0.1742831383406086,
+            "V_singular_values": 1.9028618506463104
+          },
+          "combined_singular_distance": 2.5368467653594906,
+          "leading_values": {
+            "metal": {
+              "U_sv1": 0.727299930617133,
+              "G_sv1": 0.09891278583530139,
+              "V_sv1": 5.132753665394809
+            },
+            "paper": {
+              "U_sv1": 0.9296792410270737,
+              "G_sv1": 0.1797928579620676,
+              "V_sv1": 4.506348764490963
+            }
+          },
+          "raw_input_relative_difference": 0.3407256489095514
+        },
+        {
+          "pair": "metal_vs_ptfe",
+          "relative_reconstruction_error": {
+            "metal": 0.11737978057204097,
+            "ptfe": 0.04197472777507601
+          },
+          "raw_factor_differences_fro": {
+            "U": 0.7499004960213086,
+            "G": 0.23282795792443609,
+            "V": 2.975314037867987
+          },
+          "spectral_distance_l2": {
+            "U_singular_values": 0.5386110932962022,
+            "G_singular_values": 0.16011775556538307,
+            "V_singular_values": 2.2934955927886027
+          },
+          "combined_singular_distance": 2.9922244416501877,
+          "leading_values": {
+            "metal": {
+              "U_sv1": 0.727299930617133,
+              "G_sv1": 0.09891278583530139,
+              "V_sv1": 5.132753665394809
+            },
+            "ptfe": {
+              "U_sv1": 0.8939468017943394,
+              "G_sv1": 0.16123784780624126,
+              "V_sv1": 4.194701868167937
+            }
+          },
+          "raw_input_relative_difference": 0.3647301224953338
+        },
+        {
+          "pair": "paper_vs_ptfe",
+          "relative_reconstruction_error": {
+            "paper": 0.04390553160062904,
+            "ptfe": 0.04197472777507601
+          },
+          "raw_factor_differences_fro": {
+            "U": 0.8471811549036345,
+            "G": 0.28394110205881723,
+            "V": 3.1695338511788913
+          },
+          "spectral_distance_l2": {
+            "U_singular_values": 0.11187009142209416,
+            "G_singular_values": 0.031408464139896446,
+            "V_singular_values": 0.5629380345023669
+          },
+          "combined_singular_distance": 0.7062165900643576,
+          "leading_values": {
+            "paper": {
+              "U_sv1": 0.9296792410270737,
+              "G_sv1": 0.1797928579620676,
+              "V_sv1": 4.506348764490963
+            },
+            "ptfe": {
+              "U_sv1": 0.8939468017943394,
+              "G_sv1": 0.16123784780624126,
+              "V_sv1": 4.194701868167937
+            }
+          },
+          "raw_input_relative_difference": 0.3653274306488094
+        }
+      ],
+      "mean_combined_singular_distance": 2.0784292656913457,
+      "reconstruction_errors": {
+        "metal": 0.11737978057204097,
+        "paper": 0.04390553160062904,
+        "ptfe": 0.04197472777507601
+      }
+    },
+    {
+      "window_index": 9,
+      "col_range": [
+        1200,
+        1499
+      ],
+      "travel_distance_range_mm": [
+        3585.654069897244,
+        3606.9874808394243
+      ],
+      "pairwise": [
+        {
+          "pair": "metal_vs_paper",
+          "relative_reconstruction_error": {
+            "metal": 0.13128528413404353,
+            "paper": 0.087811936582692
+          },
+          "raw_factor_differences_fro": {
+            "U": 0.521756034109216,
+            "G": 0.19253731101387694,
+            "V": 2.087965008315039
+          },
+          "spectral_distance_l2": {
+            "U_singular_values": 0.3194538564426528,
+            "G_singular_values": 0.11699543734633831,
+            "V_singular_values": 1.5979565437412204
+          },
+          "combined_singular_distance": 2.0344058375302114,
+          "leading_values": {
+            "metal": {
+              "U_sv1": 0.7085259258068829,
+              "G_sv1": 0.08682829228827492,
+              "V_sv1": 5.352771184172473
+            },
+            "paper": {
+              "U_sv1": 0.8616564886374172,
+              "G_sv1": 0.14617809030573503,
+              "V_sv1": 4.395449210045205
+            }
+          },
+          "raw_input_relative_difference": 0.3048762984216258
+        },
+        {
+          "pair": "metal_vs_ptfe",
+          "relative_reconstruction_error": {
+            "metal": 0.13128528413404353,
+            "ptfe": 0.16635171256756415
+          },
+          "raw_factor_differences_fro": {
+            "U": 0.2026368004856156,
+            "G": 0.034030569910417564,
+            "V": 0.4115695627090428
+          },
+          "spectral_distance_l2": {
+            "U_singular_values": 0.09086897327020665,
+            "G_singular_values": 0.015048339973658892,
+            "V_singular_values": 0.23640289665014755
+          },
+          "combined_singular_distance": 0.34232020989401307,
+          "leading_values": {
+            "metal": {
+              "U_sv1": 0.7085259258068829,
+              "G_sv1": 0.08682829228827492,
+              "V_sv1": 5.352771184172473
+            },
+            "ptfe": {
+              "U_sv1": 0.7956808264745084,
+              "G_sv1": 0.08205146796276805,
+              "V_sv1": 5.155912329692132
+            }
+          },
+          "raw_input_relative_difference": 0.25778284012689906
+        },
+        {
+          "pair": "paper_vs_ptfe",
+          "relative_reconstruction_error": {
+            "paper": 0.087811936582692,
+            "ptfe": 0.16635171256756415
+          },
+          "raw_factor_differences_fro": {
+            "U": 0.4602565209305224,
+            "G": 0.18404020063040705,
+            "V": 1.8770418365108479
+          },
+          "spectral_distance_l2": {
+            "U_singular_values": 0.26869051300157915,
+            "G_singular_values": 0.13145358190033296,
+            "V_singular_values": 1.4290504595938502
+          },
+          "combined_singular_distance": 1.8291945544957624,
+          "leading_values": {
+            "paper": {
+              "U_sv1": 0.8616564886374172,
+              "G_sv1": 0.14617809030573503,
+              "V_sv1": 4.395449210045205
+            },
+            "ptfe": {
+              "U_sv1": 0.7956808264745084,
+              "G_sv1": 0.08205146796276805,
+              "V_sv1": 5.155912329692132
+            }
+          },
+          "raw_input_relative_difference": 0.25986093103444485
+        }
+      ],
+      "mean_combined_singular_distance": 1.4019735339733288,
+      "reconstruction_errors": {
+        "metal": 0.13128528413404353,
+        "paper": 0.087811936582692,
+        "ptfe": 0.16635171256756415
+      }
+    },
+    {
+      "window_index": 10,
+      "col_range": [
+        1350,
+        1649
+      ],
+      "travel_distance_range_mm": [
+        3596.3564499685717,
+        3617.689860910752
+      ],
+      "pairwise": [
+        {
+          "pair": "metal_vs_paper",
+          "relative_reconstruction_error": {
+            "metal": 0.0794256209347501,
+            "paper": 0.08281463716025808
+          },
+          "raw_factor_differences_fro": {
+            "U": 0.37545319425474105,
+            "G": 0.16113381731933982,
+            "V": 1.3992239969091465
+          },
+          "spectral_distance_l2": {
+            "U_singular_values": 0.22024274835801366,
+            "G_singular_values": 0.08026753526999279,
+            "V_singular_values": 0.7153614117726046
+          },
+          "combined_singular_distance": 1.015871695400611,
+          "leading_values": {
+            "metal": {
+              "U_sv1": 0.7402087858371651,
+              "G_sv1": 0.09831011304954021,
+              "V_sv1": 5.645007076227189
+            },
+            "paper": {
+              "U_sv1": 0.7692965881618173,
+              "G_sv1": 0.1612818269830686,
+              "V_sv1": 5.184240734269892
+            }
+          },
+          "raw_input_relative_difference": 0.28378310759590164
+        },
+        {
+          "pair": "metal_vs_ptfe",
+          "relative_reconstruction_error": {
+            "metal": 0.0794256209347501,
+            "ptfe": 0.09702764807551054
+          },
+          "raw_factor_differences_fro": {
+            "U": 0.19106199091681883,
+            "G": 0.03355073941149031,
+            "V": 0.4198507295065033
+          },
+          "spectral_distance_l2": {
+            "U_singular_values": 0.10432433460331286,
+            "G_singular_values": 0.017795635481826007,
+            "V_singular_values": 0.29530960595425354
+          },
+          "combined_singular_distance": 0.4174295760393924,
+          "leading_values": {
+            "metal": {
+              "U_sv1": 0.7402087858371651,
+              "G_sv1": 0.09831011304954021,
+              "V_sv1": 5.645007076227189
+            },
+            "ptfe": {
+              "U_sv1": 0.6400007929651857,
+              "G_sv1": 0.11442855404637162,
+              "V_sv1": 5.35005104695575
+            }
+          },
+          "raw_input_relative_difference": 0.19571958264005923
+        },
+        {
+          "pair": "paper_vs_ptfe",
+          "relative_reconstruction_error": {
+            "paper": 0.08281463716025808,
+            "ptfe": 0.09702764807551054
+          },
+          "raw_factor_differences_fro": {
+            "U": 0.3902432750225628,
+            "G": 0.1638443777186737,
+            "V": 1.224824213100963
+          },
+          "spectral_distance_l2": {
+            "U_singular_values": 0.2313913953526079,
+            "G_singular_values": 0.07029989818475615,
+            "V_singular_values": 0.5620436426560803
+          },
+          "combined_singular_distance": 0.8637349361934443,
+          "leading_values": {
+            "paper": {
+              "U_sv1": 0.7692965881618173,
+              "G_sv1": 0.1612818269830686,
+              "V_sv1": 5.184240734269892
+            },
+            "ptfe": {
+              "U_sv1": 0.6400007929651857,
+              "G_sv1": 0.11442855404637162,
+              "V_sv1": 5.35005104695575
+            }
+          },
+          "raw_input_relative_difference": 0.2785630206462374
+        }
+      ],
+      "mean_combined_singular_distance": 0.7656787358778159,
+      "reconstruction_errors": {
+        "metal": 0.0794256209347501,
+        "paper": 0.08281463716025808,
+        "ptfe": 0.09702764807551054
+      }
+    },
+    {
+      "window_index": 11,
+      "col_range": [
+        1500,
+        1799
+      ],
+      "travel_distance_range_mm": [
+        3607.0588300399,
+        3628.3922409820802
+      ],
+      "pairwise": [
+        {
+          "pair": "metal_vs_paper",
+          "relative_reconstruction_error": {
+            "metal": 0.03096615246046455,
+            "paper": 0.030989637455987935
+          },
+          "raw_factor_differences_fro": {
+            "U": 0.5204248979396864,
+            "G": 0.1611141600448098,
+            "V": 1.5268073923877252
+          },
+          "spectral_distance_l2": {
+            "U_singular_values": 0.3797078111371956,
+            "G_singular_values": 0.11563392669180932,
+            "V_singular_values": 1.2291099959144574
+          },
+          "combined_singular_distance": 1.7244517337434622,
+          "leading_values": {
+            "metal": {
+              "U_sv1": 0.854031394262318,
+              "G_sv1": 0.22462919934499384,
+              "V_sv1": 4.756621336328966
+            },
+            "paper": {
+              "U_sv1": 1.0389700574258496,
+              "G_sv1": 0.19547951307858064,
+              "V_sv1": 4.368801655485337
+            }
+          },
+          "raw_input_relative_difference": 0.2505050483209483
+        },
+        {
+          "pair": "metal_vs_ptfe",
+          "relative_reconstruction_error": {
+            "metal": 0.03096615246046455,
+            "ptfe": 0.035402501176078655
+          },
+          "raw_factor_differences_fro": {
+            "U": 0.17930305454888468,
+            "G": 0.017812814937406277,
+            "V": 0.3793372679598315
+          },
+          "spectral_distance_l2": {
+            "U_singular_values": 0.062440119941556516,
+            "G_singular_values": 0.014476943567175661,
+            "V_singular_values": 0.34990340093502775
+          },
+          "combined_singular_distance": 0.42682046444375993,
+          "leading_values": {
+            "metal": {
+              "U_sv1": 0.854031394262318,
+              "G_sv1": 0.22462919934499384,
+              "V_sv1": 4.756621336328966
+            },
+            "ptfe": {
+              "U_sv1": 0.9157964797574527,
+              "G_sv1": 0.21039864937569921,
+              "V_sv1": 4.409500034299562
+            }
+          },
+          "raw_input_relative_difference": 0.18863209213312015
+        },
+        {
+          "pair": "paper_vs_ptfe",
+          "relative_reconstruction_error": {
+            "paper": 0.030989637455987935,
+            "ptfe": 0.035402501176078655
+          },
+          "raw_factor_differences_fro": {
+            "U": 0.4907001886222538,
+            "G": 0.15699751591331476,
+            "V": 1.422858951536202
+          },
+          "spectral_distance_l2": {
+            "U_singular_values": 0.35070769778230854,
+            "G_singular_values": 0.11107369982442443,
+            "V_singular_values": 1.1426936167924986
+          },
+          "combined_singular_distance": 1.6044750143992315,
+          "leading_values": {
+            "paper": {
+              "U_sv1": 1.0389700574258496,
+              "G_sv1": 0.19547951307858064,
+              "V_sv1": 4.368801655485337
+            },
+            "ptfe": {
+              "U_sv1": 0.9157964797574527,
+              "G_sv1": 0.21039864937569921,
+              "V_sv1": 4.409500034299562
+            }
+          },
+          "raw_input_relative_difference": 0.23199570510661063
+        }
+      ],
+      "mean_combined_singular_distance": 1.251915737528818,
+      "reconstruction_errors": {
+        "metal": 0.03096615246046455,
+        "paper": 0.030989637455987935,
+        "ptfe": 0.035402501176078655
+      }
+    },
+    {
+      "window_index": 12,
+      "col_range": [
+        1650,
+        1949
+      ],
+      "travel_distance_range_mm": [
+        3617.7612101112277,
+        3639.094621053408
+      ],
+      "pairwise": [
+        {
+          "pair": "metal_vs_paper",
+          "relative_reconstruction_error": {
+            "metal": 0.044391424245918513,
+            "paper": 0.023276788779209627
+          },
+          "raw_factor_differences_fro": {
+            "U": 0.6931311949153236,
+            "G": 0.25889867703143166,
+            "V": 2.1443089017496644
+          },
+          "spectral_distance_l2": {
+            "U_singular_values": 0.5452259692828869,
+            "G_singular_values": 0.2129575018272589,
+            "V_singular_values": 1.6842277354889028
+          },
+          "combined_singular_distance": 2.4424112065990484,
+          "leading_values": {
+            "metal": {
+              "U_sv1": 0.8729208378250658,
+              "G_sv1": 0.21307834387032862,
+              "V_sv1": 4.9700351273446355
+            },
+            "paper": {
+              "U_sv1": 0.9946281938730158,
+              "G_sv1": 0.20228122109621832,
+              "V_sv1": 4.538634659957635
+            }
+          },
+          "raw_input_relative_difference": 0.25546357218835974
+        },
+        {
+          "pair": "metal_vs_ptfe",
+          "relative_reconstruction_error": {
+            "metal": 0.044391424245918513,
+            "ptfe": 0.045550526048199126
+          },
+          "raw_factor_differences_fro": {
+            "U": 0.1814440832558927,
+            "G": 0.010834028425948723,
+            "V": 0.5784673141906503
+          },
+          "spectral_distance_l2": {
+            "U_singular_values": 0.04983262388957355,
+            "G_singular_values": 0.002572645162730009,
+            "V_singular_values": 0.5535931066620724
+          },
+          "combined_singular_distance": 0.605998375714376,
+          "leading_values": {
+            "metal": {
+              "U_sv1": 0.8729208378250658,
+              "G_sv1": 0.21307834387032862,
+              "V_sv1": 4.9700351273446355
+            },
+            "ptfe": {
+              "U_sv1": 0.9221329580506167,
+              "G_sv1": 0.21145537945226797,
+              "V_sv1": 4.420030328544076
+            }
+          },
+          "raw_input_relative_difference": 0.19470211126980336
+        },
+        {
+          "pair": "paper_vs_ptfe",
+          "relative_reconstruction_error": {
+            "paper": 0.023276788779209627,
+            "ptfe": 0.045550526048199126
+          },
+          "raw_factor_differences_fro": {
+            "U": 0.6818086024555723,
+            "G": 0.2571107688578607,
+            "V": 2.080217264576204
+          },
+          "spectral_distance_l2": {
+            "U_singular_values": 0.5377532880913595,
+            "G_singular_values": 0.2116476293131239,
+            "V_singular_values": 1.5769647007577006
+          },
+          "combined_singular_distance": 2.326365618162184,
+          "leading_values": {
+            "paper": {
+              "U_sv1": 0.9946281938730158,
+              "G_sv1": 0.20228122109621832,
+              "V_sv1": 4.538634659957635
+            },
+            "ptfe": {
+              "U_sv1": 0.9221329580506167,
+              "G_sv1": 0.21145537945226797,
+              "V_sv1": 4.420030328544076
+            }
+          },
+          "raw_input_relative_difference": 0.23809183894314076
+        }
+      ],
+      "mean_combined_singular_distance": 1.7915917334918696,
+      "reconstruction_errors": {
+        "metal": 0.044391424245918513,
+        "paper": 0.023276788779209627,
+        "ptfe": 0.045550526048199126
+      }
+    },
+    {
+      "window_index": 13,
+      "col_range": [
+        1800,
+        2099
+      ],
+      "travel_distance_range_mm": [
+        3628.4635901825554,
+        3649.797001124736
+      ],
+      "pairwise": [
+        {
+          "pair": "metal_vs_paper",
+          "relative_reconstruction_error": {
+            "metal": 0.03194747049732608,
+            "paper": 0.025301077019071617
+          },
+          "raw_factor_differences_fro": {
+            "U": 0.8538355736351065,
+            "G": 0.3814737803147789,
+            "V": 3.738700861722098
+          },
+          "spectral_distance_l2": {
+            "U_singular_values": 0.2730855893733173,
+            "G_singular_values": 0.2185632897336434,
+            "V_singular_values": 1.8162753911966643
+          },
+          "combined_singular_distance": 2.307924270303625,
+          "leading_values": {
+            "metal": {
+              "U_sv1": 0.8678451612168764,
+              "G_sv1": 0.20960320762868523,
+              "V_sv1": 5.496836913026065
+            },
+            "paper": {
+              "U_sv1": 0.7104831095228753,
+              "G_sv1": 0.24605625502933612,
+              "V_sv1": 3.8543584268603066
+            }
+          },
+          "raw_input_relative_difference": 0.2690093433921903
+        },
+        {
+          "pair": "metal_vs_ptfe",
+          "relative_reconstruction_error": {
+            "metal": 0.03194747049732608,
+            "ptfe": 0.041047878597475815
+          },
+          "raw_factor_differences_fro": {
+            "U": 0.6516824815628749,
+            "G": 0.1725640274353044,
+            "V": 1.945172272020343
+          },
+          "spectral_distance_l2": {
+            "U_singular_values": 0.11659152188641966,
+            "G_singular_values": 0.05725912013598257,
+            "V_singular_values": 1.1779152848490573
+          },
+          "combined_singular_distance": 1.3517659268714595,
+          "leading_values": {
+            "metal": {
+              "U_sv1": 0.8678451612168764,
+              "G_sv1": 0.20960320762868523,
+              "V_sv1": 5.496836913026065
+            },
+            "ptfe": {
+              "U_sv1": 0.9254502629097149,
+              "G_sv1": 0.22081578365107477,
+              "V_sv1": 4.419048199409319
+            }
+          },
+          "raw_input_relative_difference": 0.2857758640043532
+        },
+        {
+          "pair": "paper_vs_ptfe",
+          "relative_reconstruction_error": {
+            "paper": 0.025301077019071617,
+            "ptfe": 0.041047878597475815
+          },
+          "raw_factor_differences_fro": {
+            "U": 0.7449833438659137,
+            "G": 0.30430568569122884,
+            "V": 3.235981667139774
+          },
+          "spectral_distance_l2": {
+            "U_singular_values": 0.31447660964161783,
+            "G_singular_values": 0.2383484642696768,
+            "V_singular_values": 1.1144807098411595
+          },
+          "combined_singular_distance": 1.667305783752454,
+          "leading_values": {
+            "paper": {
+              "U_sv1": 0.7104831095228753,
+              "G_sv1": 0.24605625502933612,
+              "V_sv1": 3.8543584268603066
+            },
+            "ptfe": {
+              "U_sv1": 0.9254502629097149,
+              "G_sv1": 0.22081578365107477,
+              "V_sv1": 4.419048199409319
+            }
+          },
+          "raw_input_relative_difference": 0.2404013192739957
+        }
+      ],
+      "mean_combined_singular_distance": 1.7756653269758462,
+      "reconstruction_errors": {
+        "metal": 0.03194747049732608,
+        "paper": 0.025301077019071617,
+        "ptfe": 0.041047878597475815
+      }
+    }
+  ]
+}
