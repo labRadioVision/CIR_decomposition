@@ -12,7 +12,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--input-mat",
         type=Path,
-        default=Path("input_B.mat"),
+        default=Path("CIR_20260209T162335_Pit5x10_NS21x1_RF18001_RF28001_MetalCyl_LinOnly.mat"),
         help="Path to the source MAT file.",
     )
     parser.add_argument(
