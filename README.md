@@ -1,32 +1,70 @@
-# Deep Matrix Factorization (Gradient-Based, PSD-Aware)
+# Matrix Factorization (Deep Chain + Low-Rank Variants)
 
-This repository provides a Python implementation of **deep matrix factorization**:
+This repository provides a Python implementation of matrix factorization for rectangular targets
 
 \[
-B \approx H_1 H_2 \cdots H_L
+B \approx \hat B
 \]
 
-where each factor is optimized via gradient methods by vectorizing its entries.
+with three model families:
+
+1. `chain`: `B ~= H_1 H_2 ... H_L`
+2. `uv`: `B ~= U V`
+3. `ugv`: `B ~= U G V`
+
+The `uv` and `ugv` models are intended for matrices with very similar rows, few informative columns, and very low effective rank.
 
 ## Main implementation
 
 - `deep_matrix_factorization.py`
-  - `DeepMatrixFactorization`: model class.
-  - `build_factor_dims(...)`: helper that builds an `L`-factor chain for a target matrix of shape `M x N` using a shared hidden size `Q`.
-  - `resolve_factor_dims(...)`: validates explicit `dims` or infers them from `(M, N, L, Q)`.
-  - `fit(...)`: MSE-based optimization with Adam or L-BFGS.
-  - `FitResult`: output container with learned factors, loss history, and reconstruction.
-  - `load_matrix_from_mat(...)`: loads `B` from `.mat` using `scipy.io.loadmat`.
-  - `save_factorization_to_mat(...)`: exports factors as `.mat` via `scipy.io.savemat`.
+  - `DeepMatrixFactorization`: original chain model.
+  - `LowRankMatrixFactorization`: lightweight `uv` / `ugv` model.
+  - `build_factor_dims(...)`: helper for chain-model dimensions.
+  - `build_low_rank_shapes(...)`: helper for low-rank factor shapes.
+  - `build_model_for_matrix(...)`: unified model builder.
   - `factorize_from_mat(...)`: end-to-end MAT input/output pipeline.
+
+## Models
+
+### Chain model
+
+For a target matrix `B` with shape `M x N`, you can build an `L`-factor chain with shared hidden size `Q`:
+
+\[
+H_1 \in \mathbb{R}^{M \times Q}, \quad
+H_2,\dots,H_{L-1} \in \mathbb{R}^{Q \times Q}, \quad
+H_L \in \mathbb{R}^{Q \times N}
+\]
+
+Use `build_factor_dims(M, N, L, Q)` to generate the chain dimensions.
+
+### Low-rank UV model
+
+\[
+B \approx U V, \quad
+U \in \mathbb{R}^{M \times r}, \quad
+V \in \mathbb{R}^{r \times N}
+\]
+
+This is the simplest choice for very low-rank matrices.
+
+### Low-rank UGV model
+
+\[
+B \approx U G V, \quad
+U \in \mathbb{R}^{M \times r}, \quad
+G \in \mathbb{R}^{r \times r}, \quad
+V \in \mathbb{R}^{r \times N}
+\]
+
+This keeps a small "deep flavor" while staying much simpler than a long chain.
 
 ## Loss function
 
 The training objective is mean squared error:
 
 \[
-\mathcal{L}=\frac{1}{MN}\|B-\hat B\|_F^2,
-\quad \hat B=\prod_{i=1}^L H_i
+\mathcal{L}=\frac{1}{MN}\|B-\hat B\|_F^2
 \]
 
 Optional L2 regularization is supported.
@@ -35,38 +73,25 @@ Optional L2 regularization is supported.
 
 Four practical constraint mechanisms are implemented:
 
-1. **`softplus`** (elementwise-positive factors)
-   - Parameterize unconstrained matrix `A_i` and set `H_i = softplus(A_i)`.
-   - Works for rectangular factors, including `M x Q` and `Q x N` endpoint factors.
+1. **`softplus`**
+   - Elementwise-positive parameterization.
+   - Good when factors should stay strictly positive.
 
-2. **`cholesky`** (strictly PSD/PD square factors)
-   - Parameterize unconstrained `A_i` and build lower-triangular `L_i` with positive diagonal.
-   - Set `H_i = L_i L_i^T`.
-   - This requires every factor to be square, so it is not suitable for rectangular endpoint factors.
+2. **`cholesky`**
+   - Square PSD factors via `H = L L^T`.
+   - Only valid when every factor is square.
 
-3. **`projected_psd`** (projected gradient)
-   - Optimize raw matrices directly.
-   - After every update, symmetrize and project each square factor to PSD cone using eigenvalue clipping.
-   - For rectangular factors under this mode, fallback projection is elementwise non-negativity.
+3. **`projected_psd`**
+   - Raw optimization plus PSD projection for square factors.
+   - Rectangular factors are clipped elementwise to be nonnegative.
 
-4. **`projected_nonnegative`** (projected gradient)
-   - Optimize raw matrices directly.
-   - After every update, clip every factor entry to be nonnegative.
-   - This is a good fit for sparse rectangular nonnegative targets because factors can contain exact zeros.
-
-## Rectangular factorizations with custom `L` and `Q`
-
-If `B` has shape `M x N`, you can ask for `L` factors with shared hidden size `Q`:
-
-\[
-H_1 \in \mathbb{R}^{M \times Q}, \quad
-H_2,\dots,H_{L-1} \in \mathbb{R}^{Q \times Q}, \quad
-H_L \in \mathbb{R}^{Q \times N}
-\]
-
-Use `build_factor_dims(M, N, L, Q)` to generate the corresponding dimension chain.
+4. **`projected_nonnegative`**
+   - Raw optimization plus elementwise nonnegative projection.
+   - Recommended for sparse rectangular nonnegative matrices.
 
 ## Quick usage
+
+### Chain model
 
 ```python
 import torch
@@ -75,21 +100,54 @@ from deep_matrix_factorization import DeepMatrixFactorization, build_factor_dims
 M, N = 6, 10
 L = 4
 Q = 3
-dims = build_factor_dims(M, N, L, Q)  # [6, 3, 3, 3, 10]
+dims = build_factor_dims(M, N, L, Q)
 
 B = torch.rand(M, N, dtype=torch.float64)
-model = DeepMatrixFactorization(dims=dims, constraint="softplus", seed=0)
+model = DeepMatrixFactorization(dims=dims, constraint="projected_nonnegative", seed=0)
 result = model.fit(B, lr=0.05, max_steps=2000, optimizer="adam")
+```
 
-print(result.loss_history[-1])
-print(result.reconstruction.shape)
+### UV model
+
+```python
+import torch
+from deep_matrix_factorization import LowRankMatrixFactorization
+
+M, N, r = 20, 30, 7
+B = torch.rand(M, N, dtype=torch.float64)
+
+model = LowRankMatrixFactorization(
+    rows=M,
+    cols=N,
+    rank=r,
+    model="uv",
+    constraint="projected_nonnegative",
+    seed=0,
+)
+result = model.fit(B, lr=0.05, max_steps=2000, optimizer="adam")
+```
+
+### UGV model
+
+```python
+import torch
+from deep_matrix_factorization import LowRankMatrixFactorization
+
+M, N, r = 20, 30, 7
+B = torch.rand(M, N, dtype=torch.float64)
+
+model = LowRankMatrixFactorization(
+    rows=M,
+    cols=N,
+    rank=r,
+    model="ugv",
+    constraint="projected_nonnegative",
+    seed=0,
+)
+result = model.fit(B, lr=0.05, max_steps=2000, optimizer="adam")
 ```
 
 ## MAT input/output workflow
-
-You can directly load `B` from a `.mat` file and either:
-- pass an explicit dimension chain with `dims`, or
-- let the code infer the factor shapes from `B.shape`, `num_factors=L`, and `inner_dim=Q`.
 
 ```python
 from deep_matrix_factorization import factorize_from_mat
@@ -97,8 +155,8 @@ from deep_matrix_factorization import factorize_from_mat
 result = factorize_from_mat(
     input_mat_path="input_B.mat",
     output_mat_path="factors_out.mat",
-    num_factors=4,
-    inner_dim=12,
+    model="ugv",
+    rank=7,
     input_key="B",
     constraint="projected_nonnegative",
     lr=0.03,
@@ -108,18 +166,21 @@ result = factorize_from_mat(
 ```
 
 Saved MAT variables include:
-- `H_1`, `H_2`, ..., `H_L`: learned factors
+
+- `H_1`, `H_2`, ...: learned factors
 - `loss_history`: optimization history
-- `B_reconstruction`: reconstructed matrix product
+- `B_reconstruction`: reconstructed matrix
 
 ## Command-line usage
+
+### Low-rank UGV
 
 ```bash
 python deep_matrix_factorization.py \
   --input-mat input_B.mat \
   --output-mat factors_out.mat \
-  --num-factors 4 \
-  --inner-dim 12 \
+  --model ugv \
+  --rank 7 \
   --input-key B \
   --constraint projected_nonnegative \
   --optimizer adam \
@@ -127,21 +188,23 @@ python deep_matrix_factorization.py \
   --max-steps 3000
 ```
 
-You can still provide an explicit chain if you prefer:
+### Deep chain
 
 ```bash
 python deep_matrix_factorization.py \
   --input-mat input_B.mat \
   --output-mat factors_out.mat \
-  --dims 20 12 12 30
+  --model chain \
+  --num-factors 4 \
+  --inner-dim 12
 ```
 
 ## Recommendations
 
-- If factors must be PSD and square: use **`constraint="cholesky"`**.
-- If you want a straightforward PSD-feasibility baseline for square internal factors: use **`constraint="projected_psd"`**.
-- For sparse rectangular nonnegative targets with many zeros: use **`constraint="projected_nonnegative"`**.
-- For rectangular deep factorization with `M x Q`, `Q x Q`, ..., `Q x N` and strictly positive factors: use **`constraint="softplus"`**.
+- For sparse rectangular matrices with very similar rows: start with `model="uv"` and a small `rank`, with `7` as the current default.
+- If you want a little extra flexibility while staying low-rank: use `model="ugv"`, also with default `rank=7`.
+- Use the full `chain` model only when the shallow low-rank models are clearly too restrictive.
+- For sparse nonnegative targets: prefer `constraint="projected_nonnegative"`.
 
 ## Run demo
 
@@ -149,4 +212,4 @@ python deep_matrix_factorization.py \
 python deep_matrix_factorization.py
 ```
 
-This creates a synthetic rectangular factorization, composes `B`, and recovers a low-error deep factorization.
+This runs a small synthetic low-rank `ugv` example.
