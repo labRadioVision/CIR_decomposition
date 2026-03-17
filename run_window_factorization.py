@@ -12,7 +12,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--input-mat",
         type=Path,
-        default=Path(r"C:\Users\STEFANOSAVAZZI\Desktop\f\input_B.mat"),
+        default=Path("input_B.mat"),
         help="Path to the source MAT file.",
     )
     parser.add_argument(
@@ -24,13 +24,13 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--output-dir",
         type=Path,
-        default=Path(r"C:\Users\STEFANOSAVAZZI\Desktop"),
+        default=Path("window_factorization_results"),
         help="Folder where per-window and aggregate MAT files will be saved.",
     )
     parser.add_argument(
         "--workspace-tmp",
         type=Path,
-        default=Path(r"C:\Users\STEFANOSAVAZZI\Desktop\CIR_decomposition\.codex_tmp_window_factorization"),
+        default=Path("tmp_window_factorization"),
         help="Workspace folder used for temporary per-window input MAT files.",
     )
     parser.add_argument("--window-size", type=int, default=300, help="Window width along columns.")
